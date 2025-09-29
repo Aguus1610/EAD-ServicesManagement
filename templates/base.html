@@ -249,6 +249,21 @@
             }
         }
         
+        /* Dropdown manual fixes */
+        .dropdown-menu.show {
+            display: block !important;
+            opacity: 1;
+            transform: scale(1);
+            transition: all 0.15s ease-in-out;
+        }
+        
+        .dropdown-menu {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.15s ease-in-out;
+            z-index: 1050;
+        }
+        
         /* Scroll to top button */
         .scroll-top {
             position: fixed;
@@ -371,16 +386,16 @@
         <div class="offcanvas-body p-0">
             <div class="list-group list-group-flush">
                 <!-- Navegación Principal -->
-                <a href="/" class="list-group-item list-group-item-action py-3">
+                <a href="/" class="list-group-item list-group-item-action py-3" onclick="closeSidebar()">
                     <i class="bi bi-speedometer2 me-3" style="color: var(--ead-light-blue);"></i> Inicio
                 </a>
-                <a href="/equipos" class="list-group-item list-group-item-action py-3">
+                <a href="/equipos" class="list-group-item list-group-item-action py-3" onclick="closeSidebar()">
                     <i class="bi bi-truck me-3" style="color: var(--ead-blue);"></i> Equipos
                 </a>
-                <a href="/trabajos" class="list-group-item list-group-item-action py-3">
+                <a href="/trabajos" class="list-group-item list-group-item-action py-3" onclick="closeSidebar()">
                     <i class="bi bi-wrench me-3" style="color: var(--ead-red);"></i> Trabajos
                 </a>
-                <a href="/estadisticas" class="list-group-item list-group-item-action py-3">
+                <a href="/estadisticas" class="list-group-item list-group-item-action py-3" onclick="closeSidebar()">
                     <i class="bi bi-graph-up me-3" style="color: var(--success-color);"></i> Estadísticas
                 </a>
                 
@@ -388,10 +403,10 @@
                 <div class="list-group-item bg-light">
                     <small class="text-muted text-uppercase fw-bold">Acciones Rápidas</small>
                 </div>
-                <a href="/equipo/nuevo" class="list-group-item list-group-item-action ps-4">
+                <a href="/equipo/nuevo" class="list-group-item list-group-item-action ps-4" onclick="closeSidebar()">
                     <i class="bi bi-plus-circle me-2" style="color: var(--ead-blue);"></i> Nuevo Equipo
                 </a>
-                <a href="/trabajo/nuevo" class="list-group-item list-group-item-action ps-4">
+                <a href="/trabajo/nuevo" class="list-group-item list-group-item-action ps-4" onclick="closeSidebar()">
                     <i class="bi bi-plus-circle me-2" style="color: var(--ead-red);"></i> Nuevo Trabajo
                 </a>
                 
@@ -400,11 +415,11 @@
                 <div class="list-group-item bg-light">
                     <small class="text-muted text-uppercase fw-bold">Configuración</small>
                 </div>
-                <a href="#" onclick="toggleDarkMode(); return false;" class="list-group-item list-group-item-action ps-4">
+                <a href="javascript:void(0)" onclick="toggleDarkMode(); closeSidebar();" class="list-group-item list-group-item-action ps-4">
                     <i class="bi bi-moon-stars me-2" style="color: var(--warning-color);"></i> Modo Oscuro
                     <span class="badge bg-secondary ms-auto">Beta</span>
                 </a>
-                <a href="#" onclick="changeLanguage(); return false;" class="list-group-item list-group-item-action ps-4">
+                <a href="javascript:void(0)" onclick="changeLanguage(); closeSidebar();" class="list-group-item list-group-item-action ps-4">
                     <i class="bi bi-translate me-2" style="color: var(--info-color);"></i> Idioma
                 </a>
                 
@@ -412,13 +427,13 @@
                 <div class="list-group-item bg-light">
                     <small class="text-muted text-uppercase fw-bold">Exportar</small>
                 </div>
-                <a href="/api/export/equipos" class="list-group-item list-group-item-action ps-4">
+                <a href="/api/export/equipos" class="list-group-item list-group-item-action ps-4" onclick="closeSidebar()">
                     <i class="bi bi-download me-2" style="color: var(--ead-blue);"></i> Exportar Equipos
                 </a>
-                <a href="/api/export/trabajos" class="list-group-item list-group-item-action ps-4">
+                <a href="/api/export/trabajos" class="list-group-item list-group-item-action ps-4" onclick="closeSidebar()">
                     <i class="bi bi-download me-2" style="color: var(--ead-red);"></i> Exportar Trabajos
                 </a>
-                <a href="#" onclick="backupDatabase(); return false;" class="list-group-item list-group-item-action ps-4">
+                <a href="javascript:void(0)" onclick="backupDatabase(); closeSidebar();" class="list-group-item list-group-item-action ps-4">
                     <i class="bi bi-cloud-download me-2" style="color: var(--success-color);"></i> Backup Base de Datos
                 </a>
                 
@@ -426,13 +441,13 @@
                 <div class="list-group-item bg-light">
                     <small class="text-muted text-uppercase fw-bold">Sistema</small>
                 </div>
-                <a href="#" onclick="showAbout(); return false;" class="list-group-item list-group-item-action ps-4">
+                <a href="javascript:void(0)" onclick="showAbout(); closeSidebar();" class="list-group-item list-group-item-action ps-4">
                     <i class="bi bi-building me-2" style="color: var(--ead-blue);"></i> Acerca de EAD
                 </a>
-                <a href="#" onclick="window.location.reload()" class="list-group-item list-group-item-action ps-4">
+                <a href="javascript:void(0)" onclick="window.location.reload()" class="list-group-item list-group-item-action ps-4">
                     <i class="bi bi-arrow-clockwise me-2" style="color: var(--info-color);"></i> Actualizar Página
                 </a>
-                <a href="#" onclick="clearCache(); return false;" class="list-group-item list-group-item-action ps-4 text-danger">
+                <a href="javascript:void(0)" onclick="clearCache(); closeSidebar();" class="list-group-item list-group-item-action ps-4 text-danger">
                     <i class="bi bi-trash me-2" style="color: var(--danger-color);"></i> Limpiar Caché
                 </a>
             </div>
@@ -472,6 +487,45 @@
     <script>
         // Hacer las tablas responsive automáticamente
         document.addEventListener('DOMContentLoaded', function() {
+            // Verificar que Bootstrap esté cargado
+            console.log('Bootstrap disponible:', typeof bootstrap !== 'undefined');
+            
+            // Implementación manual de dropdowns con click
+            const dropdownButtons = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+            console.log('Botones dropdown encontrados:', dropdownButtons.length);
+            
+            dropdownButtons.forEach((button, index) => {
+                console.log(`Configurando dropdown ${index}`);
+                
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Cerrar otros dropdowns abiertos
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        if (menu !== this.nextElementSibling) {
+                            menu.classList.remove('show');
+                        }
+                    });
+                    
+                    // Toggle del dropdown actual
+                    const menu = this.nextElementSibling;
+                    if (menu && menu.classList.contains('dropdown-menu')) {
+                        menu.classList.toggle('show');
+                        console.log('Dropdown toggled:', menu.classList.contains('show'));
+                    }
+                });
+            });
+            
+            // Cerrar dropdowns al hacer click fuera
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                }
+            });
+            
             const tables = document.querySelectorAll('table');
             tables.forEach(table => {
                 if (!table.parentElement.classList.contains('table-responsive')) {
@@ -642,6 +696,17 @@
                 setTimeout(() => {
                     location.reload(true);
                 }, 1500);
+            }
+        }
+        
+        // Función para cerrar el sidebar
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                const offcanvasInstance = bootstrap.Offcanvas.getInstance(sidebar);
+                if (offcanvasInstance) {
+                    offcanvasInstance.hide();
+                }
             }
         }
     </script>

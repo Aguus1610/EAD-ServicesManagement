@@ -184,10 +184,13 @@
                             
                             <!-- Menú de acciones -->
                             <div class="dropdown ms-2">
-                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary" type="button"
+                                        data-bs-toggle="dropdown" 
+                                        aria-expanded="false"
+                                        id="dropdownMenuTrabajo{{ trabajo.id }}">
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuTrabajo{{ trabajo.id }}">
                                     <li><a class="dropdown-item" href="/equipo/{{ trabajo.equipo_id }}">
                                         <i class="bi bi-truck"></i> Ver equipo
                                     </a></li>
