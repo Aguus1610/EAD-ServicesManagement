@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if equipo else 'Nuevo' }} Equipo - EAD Oleohidráulica{% endblock %}
+
+{% block content %}
+<div class="animate-slide">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card">
+                <div class="card-header text-white" style="background-color: var(--ead-blue);">
+                    <h5 class="mb-0">
+                        <i class="bi bi-{{ 'pencil' if equipo else 'plus-circle' }}"></i>
+                        {{ 'Editar' if equipo else 'Nuevo' }} Equipo
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="equipoForm">
+                        <!-- Campos obligatorios -->
+                        <div class="mb-2">
+                            <small class="text-muted"><i class="bi bi-asterisk text-danger"></i> Campos obligatorios</small>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 col-md-6 mb-3">
+                                <label for="marca" class="form-label">
+                                    Marca <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="marca" name="marca" 
+                                       list="marcasList" required 
+                                       value="{{ equipo.marca if equipo else '' }}">
+                                <datalist id="marcasList"></datalist>
+                            </div>
+                            
+                            <div class="col-12 col-md-6 mb-3">
+                                <label for="modelo" class="form-label">
+                                    Modelo <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="modelo" name="modelo" 
+                                       list="modelosList" required
+                                       value="{{ equipo.modelo if equipo else '' }}">
+                                <datalist id="modelosList"></datalist>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 col-md-4 mb-3">
+                                <label for="anio" class="form-label">
+                                    Año <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" class="form-control" id="anio" name="anio" 
+                                       min="1900" max="2030" required
+                                       value="{{ equipo.anio if equipo else '' }}">
+                            </div>
+                            
+                            <div class="col-12 col-md-8 mb-3">
+                                <label for="n_serie" class="form-label">
+                                    N° de Serie <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="n_serie" name="n_serie" required
+                                       value="{{ equipo.n_serie if equipo else '' }}">
+                            </div>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <!-- Campos opcionales -->
+                        <div class="mb-2">
+                            <small class="text-muted">Información adicional (opcional)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="propietario" class="form-label">Propietario</label>
+                            <input type="text" class="form-control" id="propietario" name="propietario"
+                                   list="propietariosList"
+                                   value="{{ equipo.propietario if equipo and equipo.propietario else '' }}">
+                            <datalist id="propietariosList"></datalist>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 col-md-6 mb-3">
+                                <label for="vehiculo" class="form-label">Vehículo</label>
+                                <input type="text" class="form-control" id="vehiculo" name="vehiculo"
+                                       value="{{ equipo.vehiculo if equipo and equipo.vehiculo else '' }}">
+                            </div>
+                            
+                            <div class="col-12 col-md-6 mb-3">
+                                <label for="dominio" class="form-label">Dominio del Vehículo</label>
+                                <input type="text" class="form-control" id="dominio" name="dominio"
+                                       placeholder="Ej: ABC123"
+                                       value="{{ equipo.dominio if equipo and equipo.dominio else '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notas</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3">{{ equipo.notes if equipo and equipo.notes else '' }}</textarea>
+                        </div>
+                        
+                        <!-- Botones -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Guardar
+                            </button>
+                            <a href="{{ '/equipo/' + equipo.id|string if equipo else '/equipos' }}" 
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Datos para autocompletado
+const marcas = {{ marcas | safe }};
+const propietarios = {{ propietarios | safe }};
+
+// Llenar datalists
+const marcasList = document.getElementById('marcasList');
+marcas.forEach(marca => {
+    const option = document.createElement('option');
+    option.value = marca;
+    marcasList.appendChild(option);
+});
+
+const propietariosList = document.getElementById('propietariosList');
+propietarios.forEach(prop => {
+    const option = document.createElement('option');
+    option.value = prop;
+    propietariosList.appendChild(option);
+});
+
+// Actualizar modelos cuando cambia la marca
+document.getElementById('marca').addEventListener('change', async function() {
+    const marca = this.value;
+    if (marca) {
+        try {
+            const response = await fetch('/api/modelos/' + encodeURIComponent(marca));
+            const modelos = await response.json();
+            
+            const modelosList = document.getElementById('modelosList');
+            modelosList.innerHTML = '';
+            modelos.forEach(modelo => {
+                const option = document.createElement('option');
+                option.value = modelo;
+                modelosList.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error cargando modelos:', error);
+        }
+    }
+});
+
+// Año por defecto: actual
+if (!document.getElementById('anio').value) {
+    document.getElementById('anio').value = new Date().getFullYear();
+}
+</script>
+{% endblock %}

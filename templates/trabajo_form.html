@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if trabajo else 'Nuevo' }} Trabajo - EAD Oleohidráulica{% endblock %}
+
+{% block content %}
+<div class="animate-slide">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card">
+                <div class="card-header text-white" style="background-color: var(--ead-red);">
+                    <h5 class="mb-0">
+                        <i class="bi bi-{{ 'pencil' if trabajo else 'plus-circle' }}"></i>
+                        {{ 'Editar' if trabajo else 'Nuevo' }} Trabajo
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Info del equipo -->
+                    <div class="alert alert-light">
+                        <strong>Equipo:</strong> {{ equipo.marca }} {{ equipo.modelo }} ({{ equipo.anio }})
+                        <br>
+                        <small class="text-muted">Serie: {{ equipo.n_serie }}</small>
+                    </div>
+                    
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="date_done" class="form-label">
+                                Fecha del trabajo <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" class="form-control" id="date_done" name="date_done" required
+                                   value="{{ trabajo.date_done.strftime('%Y-%m-%d') if trabajo else '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">
+                                Descripción del trabajo <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="4" required>{{ trabajo.description if trabajo else '' }}</textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 col-md-6 mb-3">
+                                <label for="budget" class="form-label">Presupuesto ($)</label>
+                                <input type="number" class="form-control" id="budget" name="budget" 
+                                       step="0.01" min="0"
+                                       value="{{ trabajo.budget if trabajo else '0' }}">
+                            </div>
+                            
+                            <div class="col-12 col-md-6 mb-3">
+                                <label for="next_service_days" class="form-label">
+                                    Próximo service (días)
+                                </label>
+                                <input type="number" class="form-control" id="next_service_days" 
+                                       name="next_service_days" min="1"
+                                       value="{{ trabajo.next_service_days if trabajo and trabajo.next_service_days else '' }}"
+                                       placeholder="Opcional">
+                                <small class="text-muted">Cantidad de días hasta el próximo service</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Calculadora de fecha -->
+                        <div id="nextDatePreview" class="alert alert-info d-none">
+                            <i class="bi bi-calendar-check"></i>
+                            <span id="nextDateText"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notas adicionales</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3">{{ trabajo.notes if trabajo and trabajo.notes else '' }}</textarea>
+                        </div>
+                        
+                        <!-- Botones -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Guardar
+                            </button>
+                            <a href="/equipo/{{ equipo.id }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Fecha por defecto: hoy
+if (!document.getElementById('date_done').value) {
+    document.getElementById('date_done').value = new Date().toISOString().split('T')[0];
+}
+
+// Calcular y mostrar fecha del próximo service
+function calcularProximoService() {
+    const fechaTrabajo = document.getElementById('date_done').value;
+    const diasService = document.getElementById('next_service_days').value;
+    
+    if (fechaTrabajo && diasService && diasService > 0) {
+        const fecha = new Date(fechaTrabajo);
+        fecha.setDate(fecha.getDate() + parseInt(diasService));
+        
+        const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+        const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
+        
+        document.getElementById('nextDateText').textContent = 
+            `El próximo service será el ${fechaFormateada}`;
+        document.getElementById('nextDatePreview').classList.remove('d-none');
+    } else {
+        document.getElementById('nextDatePreview').classList.add('d-none');
+    }
+}
+
+document.getElementById('date_done').addEventListener('change', calcularProximoService);
+document.getElementById('next_service_days').addEventListener('input', calcularProximoService);
+
+// Calcular al cargar si hay valores
+calcularProximoService();
+</script>
+{% endblock %}

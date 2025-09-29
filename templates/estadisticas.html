@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}Estadísticas - EAD Oleohidráulica{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="mt-2">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/"><i class="bi bi-house"></i> Inicio</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><i class="bi bi-graph-up"></i> Estadísticas</li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="animate-slide">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-graph-up" style="color: var(--ead-blue);"></i> Estadísticas del Taller</h2>
+        </div>
+    </div>
+    
+    <!-- Resumen General -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-truck fs-2 text-primary"></i>
+                    <h4 class="mt-2 mb-1">{{ total_equipment }}</h4>
+                    <small class="text-muted">Total Equipos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-wrench fs-2 text-success"></i>
+                    <h4 class="mt-2 mb-1">{{ total_jobs }}</h4>
+                    <small class="text-muted">Total Trabajos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-currency-dollar fs-2 text-warning"></i>
+                    <h4 class="mt-2 mb-1">${{ "{:,.0f}".format(total_budget) }}</h4>
+                    <small class="text-muted">Facturado Total</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-calculator fs-2 text-info"></i>
+                    <h4 class="mt-2 mb-1">${{ "{:,.0f}".format(avg_budget) }}</h4>
+                    <small class="text-muted">Promedio/Trabajo</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gráficos -->
+    <div class="row mb-4">
+        <!-- Gastos por Mes -->
+        <div class="col-12 col-lg-7 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar3"></i> Evolución de Gastos por Mes</h5>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="gastosChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Distribución por Marca -->
+        <div class="col-12 col-lg-5 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Distribución por Marca</h5>
+                </div>
+                <div class="card-body">
+                    <div style="max-width: 350px; margin: 0 auto;">
+                        <canvas id="marcasChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top 10 Equipos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-trophy"></i> Top 10 Equipos por Gastos</h5>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height: 400px; max-width: 900px; margin: 0 auto;">
+                        <canvas id="topEquiposChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Datos desde el backend
+const topEquipos = {{ top_equipos | safe }};
+const gastosMes = {{ gastos_mes | safe }};
+const marcasDist = {{ marcas_dist | safe }};
+
+// Configuración de colores
+const colors = {
+    primary: '#2563eb',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#06b6d4'
+};
+
+// Paleta de colores para gráficos
+const palette = [
+    '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#06b6d4',
+    '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6', '#f97316'
+];
+
+// Gráfico de Gastos por Mes (Línea/Barras)
+const ctxGastos = document.getElementById('gastosChart').getContext('2d');
+new Chart(ctxGastos, {
+    type: 'line',
+    data: {
+        labels: gastosMes.map(g => g.month),
+        datasets: [{
+            label: 'Gastos Mensuales',
+            data: gastosMes.map(g => g.total),
+            borderColor: colors.primary,
+            backgroundColor: colors.primary + '20',
+            tension: 0.3,
+            fill: true,
+            pointBackgroundColor: colors.primary,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return '$' + context.parsed.y.toLocaleString();
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        if (value >= 1000000) {
+                            return '$' + (value / 1000000).toFixed(1) + 'M';
+                        } else if (value >= 1000) {
+                            return '$' + (value / 1000).toFixed(0) + 'K';
+                        }
+                        return '$' + value;
+                    },
+                    font: {
+                        size: 11
+                    }
+                },
+                grid: {
+                    borderDash: [2, 2]
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    font: {
+                        size: 11
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Gráfico de Distribución por Marca (Donut)
+const ctxMarcas = document.getElementById('marcasChart').getContext('2d');
+new Chart(ctxMarcas, {
+    type: 'doughnut',
+    data: {
+        labels: marcasDist.map(m => m.marca),
+        datasets: [{
+            data: marcasDist.map(m => m.count),
+            backgroundColor: palette,
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 15,
+                    font: {
+                        size: 11
+                    }
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((context.parsed / total) * 100).toFixed(1);
+                        return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Gráfico de Top Equipos (Barras Horizontales)
+const ctxTop = document.getElementById('topEquiposChart').getContext('2d');
+new Chart(ctxTop, {
+    type: 'bar',
+    data: {
+        labels: topEquipos.slice(0, 10).map(e => {
+            // Truncar nombres largos para mejor visualización
+            return e.name.length > 30 ? e.name.substring(0, 27) + '...' : e.name;
+        }),
+        datasets: [{
+            label: 'Total Gastado',
+            data: topEquipos.slice(0, 10).map(e => e.total),
+            backgroundColor: palette,
+            borderWidth: 0,
+            barThickness: 25,  // Grosor fijo de las barras
+            maxBarThickness: 30  // Máximo grosor
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const equipo = topEquipos[context.dataIndex];
+                        return [
+                            'Total: $' + context.parsed.x.toLocaleString(),
+                            'Trabajos: ' + equipo.jobs
+                        ];
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        if (value >= 1000000) {
+                            return '$' + (value / 1000000).toFixed(1) + 'M';
+                        } else if (value >= 1000) {
+                            return '$' + (value / 1000).toFixed(0) + 'K';
+                        }
+                        return '$' + value;
+                    },
+                    font: {
+                        size: 11
+                    }
+                },
+                grid: {
+                    borderDash: [2, 2]
+                }
+            },
+            y: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    font: {
+                        size: 11
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

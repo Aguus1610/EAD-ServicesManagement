@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EAD Oleohidráulica{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #1a3a52;  /* Azul marino EAD */
+            --secondary-color: #dc2626; /* Rojo EAD */
+            --accent-color: #06b6d4;    /* Azul celeste para acentos */
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #06b6d4;
+            --dark-color: #0f2942;      /* Azul muy oscuro EAD */
+            --light-gray: #f3f4f6;
+            --ead-blue: #1a3a52;
+            --ead-red: #dc2626;
+            --ead-light-blue: #06b6d4;
+        }
+        
+        body {
+            background-color: #f8fafc;
+            min-height: 100vh;
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        
+        .navbar-brand {
+            font-size: 1.3rem;
+            transition: transform 0.2s;
+        }
+        
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s;
+            border-radius: 0.5rem;
+            margin: 0 0.2rem;
+        }
+        
+        .navbar-dark .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background-color: white;
+            border-radius: 2px;
+        }
+        
+        /* Dropdown Menus */
+        .dropdown-menu {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            animation: slideDown 0.2s ease-out;
+            margin-top: 0.5rem !important;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .dropdown-item {
+            padding: 0.6rem 1.2rem;
+            transition: all 0.2s;
+            border-radius: 0.5rem;
+            margin: 0.2rem 0.5rem;
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--light-gray);
+            color: var(--primary-color) !important;
+            transform: translateX(5px);
+        }
+        
+        .dropdown-item:hover i {
+            color: var(--secondary-color);
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .dropdown-header {
+            font-size: 0.75rem;
+            color: #6c757d;
+            padding: 0.5rem 1.2rem;
+        }
+        
+        /* Cards */
+        .card {
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
+        
+        .stat-card {
+            transition: all 0.3s;
+            cursor: pointer;
+            border-top: 3px solid transparent;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-top-color: var(--primary-color);
+        }
+        
+        /* Buttons */
+        .btn {
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #0f2942;
+            border-color: #0f2942;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+        
+        /* Tables */
+        .table-responsive {
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        
+        .table-hover tbody tr {
+            transition: all 0.2s;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(30, 64, 175, 0.05);
+            transform: scale(1.005);
+        }
+        
+        /* Offcanvas Sidebar */
+        .offcanvas {
+            border-right: none;
+            box-shadow: 5px 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .list-group-item {
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .list-group-item:hover {
+            background-color: var(--light-gray);
+            padding-left: 2rem !important;
+            color: var(--primary-color);
+        }
+        
+        .list-group-item.bg-light {
+            background-color: #f8f9fa !important;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        /* Badges */
+        .badge {
+            padding: 0.35em 0.65em;
+            border-radius: 0.375rem;
+            font-weight: 500;
+        }
+        
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-slide {
+            animation: slideIn 0.4s ease-out;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 0.5rem;
+            }
+            
+            .card {
+                margin-bottom: 1rem;
+            }
+            
+            .dropdown-menu {
+                width: calc(100vw - 2rem);
+                max-width: 350px;
+            }
+        }
+        
+        /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .scroll-top.show {
+            opacity: 1;
+        }
+        
+        .scroll-top:hover {
+            transform: scale(1.1);
+            background-color: var(--ead-red);
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar Mejorado -->
+    <nav class="navbar navbar-expand-lg navbar-dark shadow" style="background-color: var(--dark-color);">
+        <div class="container-fluid">
+            <!-- Botón menú móvil -->
+            <button class="btn btn-outline-light d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+                <i class="bi bi-list"></i>
+            </button>
+            
+            <!-- Logo EAD Real -->
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="{{ url_for('static', filename='img/EAD negro (snf) apaisado.png') }}" 
+                     alt="EAD Oleohidráulica - ENZO A. DEUX" 
+                     height="45" 
+                     style="max-width: 200px;"
+                     class="me-2">
+            </a>
+            
+            <!-- Botón toggler para móvil -->
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <!-- Menú principal -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <!-- Dashboard -->
+                    <li class="nav-item">
+                        <a class="nav-link px-3 {{ 'active fw-bold' if request.endpoint == 'index' else '' }}" href="/">
+                            <i class="bi bi-speedometer2"></i> Inicio
+                        </a>
+                    </li>
+                    
+                    <!-- Equipos -->
+                    <li class="nav-item">
+                        <a class="nav-link px-3 {{ 'active fw-bold' if 'equipo' in request.endpoint else '' }}" 
+                           href="/equipos">
+                            <i class="bi bi-truck"></i> Equipos
+                        </a>
+                    </li>
+                    
+                    <!-- Trabajos -->
+                    <li class="nav-item">
+                        <a class="nav-link px-3 {{ 'active fw-bold' if 'trabajo' in request.endpoint else '' }}" 
+                           href="/trabajos">
+                            <i class="bi bi-wrench"></i> Trabajos
+                        </a>
+                    </li>
+                    
+                    <!-- Estadísticas -->
+                    <li class="nav-item">
+                        <a class="nav-link px-3 {{ 'active fw-bold' if request.endpoint == 'estadisticas' else '' }}" href="/estadisticas">
+                            <i class="bi bi-graph-up"></i> Estadísticas
+                        </a>
+                    </li>
+                    
+                    <!-- Botón de Configuración -->
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-sm ms-3 dropdown-toggle" 
+                                style="background-color: var(--ead-red); color: white; border: none; transition: all 0.3s;" 
+                                onmouseover="this.style.backgroundColor='#b91c1c'" 
+                                onmouseout="this.style.backgroundColor='var(--ead-red)'" 
+                                data-bs-toggle="dropdown">
+                            <i class="bi bi-gear-fill"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 250px;">
+                            <li><h6 class="dropdown-header"><i class="bi bi-gear me-2"></i>Configuración</h6></li>
+                            
+                            <!-- Configuración General -->
+                            <li><a class="dropdown-item" href="#" onclick="toggleDarkMode(); return false;">
+                                <i class="bi bi-moon-stars me-2"></i> Modo Oscuro
+                                <span class="badge bg-secondary ms-auto">Beta</span>
+                            </a></li>
+                            
+                            <li><a class="dropdown-item" href="#" onclick="changeLanguage(); return false;">
+                                <i class="bi bi-translate me-2"></i> Idioma
+                            </a></li>
+                            
+                            <li><hr class="dropdown-divider"></li>
+                            
+                            <!-- Gestión de Datos -->
+                            <li><h6 class="dropdown-header"><i class="bi bi-database me-2"></i>Datos</h6></li>
+                            
+                            <li><a class="dropdown-item" href="/api/export/equipos">
+                                <i class="bi bi-file-earmark-spreadsheet me-2"></i> Exportar Equipos
+                            </a></li>
+                            
+                            <li><a class="dropdown-item" href="/api/export/trabajos">
+                                <i class="bi bi-file-earmark-spreadsheet me-2"></i> Exportar Trabajos
+                            </a></li>
+                            
+                            <li><a class="dropdown-item" href="#" onclick="backupDatabase(); return false;">
+                                <i class="bi bi-cloud-download me-2"></i> Backup Base de Datos
+                            </a></li>
+                            
+                            <li><hr class="dropdown-divider"></li>
+                            
+                            <!-- Sistema -->
+                            <li><h6 class="dropdown-header"><i class="bi bi-info-circle me-2"></i>Sistema</h6></li>
+                            
+                            <li><a class="dropdown-item" href="#" onclick="showAbout(); return false;">
+                                <i class="bi bi-building me-2"></i> Acerca de EAD
+                            </a></li>
+                            
+                            <li><a class="dropdown-item" href="#" onclick="window.location.reload()">
+                                <i class="bi bi-arrow-clockwise me-2"></i> Actualizar Página
+                            </a></li>
+                            
+                            <li><a class="dropdown-item text-danger" href="#" onclick="clearCache(); return false;">
+                                <i class="bi bi-trash me-2"></i> Limpiar Caché
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Sidebar Mejorado para móvil -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar" style="width: 280px;">
+        <div class="offcanvas-header text-white" style="background-color: var(--dark-color);">
+            <div class="offcanvas-title">
+                <img src="{{ url_for('static', filename='img/EAD negro (snf) apaisado.png') }}" 
+                     alt="EAD Oleohidráulica - ENZO A. DEUX" 
+                     height="35" 
+                     style="max-width: 180px;">
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div class="list-group list-group-flush">
+                <!-- Navegación Principal -->
+                <a href="/" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-speedometer2 me-3"></i> Inicio
+                </a>
+                <a href="/equipos" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-truck me-3" style="color: var(--ead-blue);"></i> Equipos
+                </a>
+                <a href="/trabajos" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-wrench me-3" style="color: var(--ead-red);"></i> Trabajos
+                </a>
+                <a href="/estadisticas" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-graph-up me-3"></i> Estadísticas
+                </a>
+                
+                <!-- Acciones Rápidas -->
+                <div class="list-group-item bg-light">
+                    <small class="text-muted text-uppercase fw-bold">Acciones Rápidas</small>
+                </div>
+                <a href="/equipo/nuevo" class="list-group-item list-group-item-action ps-4">
+                    <i class="bi bi-plus-circle me-2"></i> Nuevo Equipo
+                </a>
+                <a href="/trabajo/nuevo" class="list-group-item list-group-item-action ps-4">
+                    <i class="bi bi-plus-circle me-2"></i> Nuevo Trabajo
+                </a>
+                
+                
+                <!-- Exportar -->
+                <div class="list-group-item bg-light">
+                    <small class="text-muted text-uppercase fw-bold">Exportar</small>
+                </div>
+                <a href="/api/export/equipos" class="list-group-item list-group-item-action ps-4">
+                    <i class="bi bi-download me-2"></i> Exportar Equipos
+                </a>
+                <a href="/api/export/trabajos" class="list-group-item list-group-item-action ps-4">
+                    <i class="bi bi-download me-2"></i> Exportar Trabajos
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Breadcrumb (opcional) -->
+    {% block breadcrumb %}{% endblock %}
+    
+    <!-- Main Content -->
+    <main class="container-fluid py-3">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Scroll to Top Button -->
+    <div class="scroll-top" id="scrollTop">
+        <i class="bi bi-arrow-up"></i>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="text-center py-3 mt-5" style="background-color: var(--light-gray); border-top: 3px solid var(--ead-blue);">
+        <div class="container">
+            <div>
+                <i class="bi bi-gear-fill" style="color: var(--ead-blue);"></i>
+                <strong style="color: var(--ead-blue);">EAD</strong> 
+                <span style="color: var(--ead-red);">Oleohidráulica</span>
+                <span class="text-muted">© 2025</span>
+            </div>
+            <small class="text-muted">ENZO A. DEUX | Sistema de Gestión v1.0</small>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Hacer las tablas responsive automáticamente
+        document.addEventListener('DOMContentLoaded', function() {
+            const tables = document.querySelectorAll('table');
+            tables.forEach(table => {
+                if (!table.parentElement.classList.contains('table-responsive')) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'table-responsive';
+                    table.parentNode.insertBefore(wrapper, table);
+                    wrapper.appendChild(table);
+                }
+            });
+            
+            // Scroll to top button
+            const scrollBtn = document.getElementById('scrollTop');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    scrollBtn.classList.add('show');
+                } else {
+                    scrollBtn.classList.remove('show');
+                }
+            });
+            
+            scrollBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Cerrar dropdowns al hacer click fuera
+            document.addEventListener('click', function(e) {
+                const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+                dropdowns.forEach(dropdown => {
+                    if (!dropdown.contains(e.target) && !e.target.matches('[data-bs-toggle="dropdown"]')) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            });
+            
+            // Agregar efecto hover a las cards con links
+            const clickableCards = document.querySelectorAll('.card[data-href]');
+            clickableCards.forEach(card => {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', function() {
+                    window.location.href = this.dataset.href;
+                });
+            });
+            
+            // Mejorar accesibilidad de los dropdowns
+            const dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const menu = this.nextElementSibling;
+                    if (menu) {
+                        menu.classList.toggle('show');
+                    }
+                });
+            });
+        });
+        
+        // Función para mostrar notificaciones (opcional)
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+            notification.style.zIndex = '9999';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+        
+        // Funciones del menú de configuración
+        function toggleDarkMode() {
+            showNotification('El modo oscuro estará disponible próximamente', 'info');
+        }
+        
+        function changeLanguage() {
+            showNotification('Las opciones de idioma estarán disponibles próximamente', 'info');
+        }
+        
+        function backupDatabase() {
+            if(confirm('¿Desea descargar una copia de seguridad de la base de datos?')) {
+                window.location.href = '/api/backup';
+            }
+        }
+        
+        function showAbout() {
+            const aboutModal = `
+                <div class="modal fade" id="aboutModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background-color: var(--ead-blue); color: white;">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-building me-2"></i>
+                                    Acerca de EAD Oleohidráulica
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="text-center mb-3">
+                                    <img src="/static/img/EAD negro (snf) apaisado.png" 
+                                         alt="EAD Oleohidráulica - ENZO A. DEUX" 
+                                         height="60" 
+                                         style="max-width: 200px;">
+                                </div>
+                                <h6 class="text-center">Sistema de Gestión de Taller</h6>
+                                <p class="text-center text-muted">Versión 1.0</p>
+                                <hr>
+                                <div class="text-center mb-3">
+                                    <strong>ENZO A. DEUX</strong><br>
+                                    <small class="text-muted">Oleohidráulica Especializada</small>
+                                </div>
+                                <hr>
+                                <p><strong>Características del Sistema:</strong></p>
+                                <ul class="small">
+                                    <li>Gestión completa de equipos hidráulicos</li>
+                                    <li>Control de mantenimientos preventivos</li>
+                                    <li>Seguimiento de reparaciones y servicios</li>
+                                    <li>Estadísticas y análisis detallados</li>
+                                    <li>Exportación de datos en formato CSV</li>
+                                    <li>Interfaz responsive para móviles y tablets</li>
+                                </ul>
+                                <hr>
+                                <p class="text-center text-muted small">
+                                    <i class="bi bi-c-circle me-1"></i>2025 EAD Oleohidráulica<br>
+                                    Todos los derechos reservados
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Eliminar modal existente si existe
+            const existingModal = document.getElementById('aboutModal');
+            if(existingModal) {
+                existingModal.remove();
+            }
+            
+            // Crear y mostrar el modal
+            document.body.insertAdjacentHTML('beforeend', aboutModal);
+            const modal = new bootstrap.Modal(document.getElementById('aboutModal'));
+            modal.show();
+            
+            // Limpiar el modal cuando se cierre
+            document.getElementById('aboutModal').addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
+        }
+        
+        function clearCache() {
+            if(confirm('¿Está seguro de que desea limpiar el caché del navegador?\n\nEsto borrará todos los datos temporales almacenados.')) {
+                // Limpiar localStorage y sessionStorage
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                showNotification('Caché limpiado correctamente. Recargando página...', 'success');
+                
+                // Recargar sin caché después de un breve delay
+                setTimeout(() => {
+                    location.reload(true);
+                }, 1500);
+            }
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
