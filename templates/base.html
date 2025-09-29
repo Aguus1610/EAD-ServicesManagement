@@ -284,12 +284,7 @@
     <!-- Navbar Mejorado -->
     <nav class="navbar navbar-expand-lg navbar-dark shadow" style="background-color: var(--dark-color);">
         <div class="container-fluid">
-            <!-- Botón menú móvil -->
-            <button class="btn btn-outline-light d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
-                <i class="bi bi-list"></i>
-            </button>
-            
-            <!-- Logo EAD Real -->
+            <!-- Logo EAD Real - Siempre a la izquierda -->
             <a class="navbar-brand d-flex align-items-center" href="/">
                 <img src="{{ url_for('static', filename='img/EAD negro (snf) apaisado.png') }}" 
                      alt="EAD Oleohidráulica - ENZO A. DEUX" 
@@ -297,6 +292,11 @@
                      style="max-width: 200px;"
                      class="me-2">
             </a>
+            
+            <!-- Botón menú móvil - Ahora a la derecha -->
+            <button class="btn btn-outline-light d-lg-none ms-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+                <i class="bi bi-list"></i>
+            </button>
             
             <!-- Menú principal solo para desktop -->
             <div class="d-none d-lg-flex ms-auto align-items-center">
