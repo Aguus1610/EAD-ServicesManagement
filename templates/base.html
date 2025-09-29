@@ -98,6 +98,8 @@
         .navbar {
             backdrop-filter: blur(10px);
             transition: all 0.3s;
+            position: relative;
+            z-index: 1030;
         }
         
         .navbar-brand {
@@ -316,13 +318,51 @@
             opacity: 1;
             transform: scale(1);
             transition: all 0.15s ease-in-out;
+            z-index: 9999 !important;
         }
         
         .dropdown-menu {
             opacity: 0;
             transform: scale(0.95);
             transition: all 0.15s ease-in-out;
-            z-index: 1050;
+            z-index: 9999 !important;
+        }
+        
+        /* Asegurar que el dropdown del navbar esté al frente */
+        .navbar .dropdown {
+            position: relative;
+            z-index: 9999;
+        }
+        
+        .navbar .dropdown-menu {
+            z-index: 9999 !important;
+            position: absolute !important;
+        }
+        
+        /* Específicamente para el botón de configuración */
+        .navbar .dropdown .dropdown-menu {
+            background-color: var(--card-bg) !important;
+            color: var(--text-color) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175) !important;
+        }
+        
+        /* Dropdown items en modo oscuro */
+        [data-theme="dark"] .navbar .dropdown .dropdown-menu {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5) !important;
+        }
+        
+        [data-theme="dark"] .dropdown-item {
+            color: var(--text-color) !important;
+        }
+        
+        [data-theme="dark"] .dropdown-item:hover {
+            background-color: var(--light-gray) !important;
+            color: var(--text-color) !important;
+        }
+        
+        [data-theme="dark"] .dropdown-header {
+            color: var(--text-muted) !important;
         }
         
         /* Scroll to top button */
