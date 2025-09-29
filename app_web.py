@@ -10,11 +10,38 @@ import json
 import csv
 import io
 import os
+import logging
+import traceback
 from peewee import SqliteDatabase, Model, CharField, DateField, TextField, IntegerField, FloatField, ForeignKeyField, fn
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Configuración de Flask
 app = Flask(__name__)
 app.secret_key = 'tu-clave-secreta-aqui-cambiar-en-produccion'
+
+# Manejador de errores global
+@app.errorhandler(500)
+def internal_error(error):
+    logger.error(f"Error interno del servidor: {error}")
+    logger.error(traceback.format_exc())
+    return render_template('error.html', 
+                         error_code=500,
+                         error_message="Error interno del servidor"), 500
+
+@app.errorhandler(404)
+def not_found_error(error):
+    logger.warning(f"Página no encontrada: {request.url}")
+    return render_template('error.html',
+                         error_code=404,
+                         error_message="Página no encontrada"), 404
+
+# Ruta para favicon
+@app.route('/favicon.ico')
+def favicon():
+    return send_file('static/img/EAD negro (snf).png', mimetype='image/png')
 
 # Base de datos
 DB_FILENAME = 'agenda_taller.db'
@@ -212,9 +239,15 @@ def equipo_edit(equipo_id):
 @app.route('/equipo/<int:equipo_id>/eliminar', methods=['POST'])
 def equipo_delete(equipo_id):
     """Eliminar equipo"""
-    equipo = Equipment.get_by_id(equipo_id)
-    equipo.delete_instance(recursive=True)
-    return redirect(url_for('equipos_list'))
+    try:
+        equipo = Equipment.get_by_id(equipo_id)
+        # Eliminar equipo y trabajos asociados de forma recursiva
+        equipo.delete_instance(recursive=True)
+        return redirect(url_for('equipos_list'))
+    except Exception as e:
+        logger.error(f"Error eliminando equipo {equipo_id}: {e}")
+        logger.error(traceback.format_exc())
+        return redirect(url_for('equipos_list'))
 
 # ---------------------------- RUTAS DE TRABAJOS ----------------------------
 
@@ -357,10 +390,24 @@ def trabajo_edit(trabajo_id):
 @app.route('/trabajo/<int:trabajo_id>/eliminar', methods=['POST'])
 def trabajo_delete(trabajo_id):
     """Eliminar trabajo"""
-    trabajo = Job.get_by_id(trabajo_id)
-    equipo_id = trabajo.equipment.id
-    trabajo.delete_instance()
-    return redirect(url_for('equipo_detail', equipo_id=equipo_id))
+    try:
+        trabajo = Job.get_by_id(trabajo_id)
+        equipo_id = trabajo.equipment.id
+        trabajo.delete_instance()
+        
+        # Determinar desde dónde se llamó para redirigir correctamente
+        referer = request.headers.get('Referer', '')
+        if '/trabajos' in referer:
+            # Si viene de la página de trabajos, redirigir ahí
+            return redirect(url_for('trabajos_list'))
+        else:
+            # Si viene del detalle del equipo, redirigir ahí
+            return redirect(url_for('equipo_detail', equipo_id=equipo_id))
+    except Exception as e:
+        logger.error(f"Error eliminando trabajo {trabajo_id}: {e}")
+        logger.error(traceback.format_exc())
+        # En caso de error, redirigir a trabajos con mensaje de error
+        return redirect(url_for('trabajos_list'))
 
 # ---------------------------- RUTAS DE ESTADÍSTICAS ----------------------------
 

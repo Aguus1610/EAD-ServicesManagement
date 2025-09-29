@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Error {{ error_code }} - EAD Oleohidráulica{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <!-- Icono de error -->
+                    <div class="mb-4">
+                        {% if error_code == 404 %}
+                            <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+                        {% elif error_code == 500 %}
+                            <i class="bi bi-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
+                        {% else %}
+                            <i class="bi bi-x-circle text-warning" style="font-size: 4rem;"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Código de error -->
+                    <h1 class="display-4 fw-bold mb-3" style="color: var(--ead-red);">
+                        {{ error_code }}
+                    </h1>
+                    
+                    <!-- Mensaje de error -->
+                    <h3 class="mb-3">{{ error_message }}</h3>
+                    
+                    <!-- Descripción -->
+                    <p class="text-muted mb-4">
+                        {% if error_code == 404 %}
+                            La página que buscas no existe o ha sido movida.
+                        {% elif error_code == 500 %}
+                            Se produjo un error interno en el servidor. El problema ha sido reportado y estamos trabajando para solucionarlo.
+                        {% else %}
+                            Se ha producido un error inesperado.
+                        {% endif %}
+                    </p>
+                    
+                    <!-- Botones de acción -->
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                        <a href="/" class="btn btn-primary">
+                            <i class="bi bi-house-fill me-2"></i>
+                            Volver al Inicio
+                        </a>
+                        <button onclick="history.back()" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Página Anterior
+                        </button>
+                        <button onclick="window.location.reload()" class="btn btn-outline-info">
+                            <i class="bi bi-arrow-clockwise me-2"></i>
+                            Reintentar
+                        </button>
+                    </div>
+                    
+                    <!-- Información adicional para error 500 -->
+                    {% if error_code == 500 %}
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Si el problema persiste, contacta al administrador del sistema.
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Enlaces rápidos -->
+            <div class="row mt-4">
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 bg-transparent text-center">
+                        <div class="card-body">
+                            <a href="/equipos" class="text-decoration-none">
+                                <i class="bi bi-truck fs-3 mb-2 d-block" style="color: var(--ead-blue);"></i>
+                                <small>Equipos</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 bg-transparent text-center">
+                        <div class="card-body">
+                            <a href="/trabajos" class="text-decoration-none">
+                                <i class="bi bi-tools fs-3 mb-2 d-block" style="color: var(--ead-red);"></i>
+                                <small>Trabajos</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 bg-transparent text-center">
+                        <div class="card-body">
+                            <a href="/estadisticas" class="text-decoration-none">
+                                <i class="bi bi-graph-up fs-3 mb-2 d-block" style="color: var(--ead-light-blue);"></i>
+                                <small>Estadísticas</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 bg-transparent text-center">
+                        <div class="card-body">
+                            <a href="/equipo/nuevo" class="text-decoration-none">
+                                <i class="bi bi-plus-circle fs-3 mb-2 d-block" style="color: var(--success-color);"></i>
+                                <small>Nuevo Equipo</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
