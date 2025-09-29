@@ -298,102 +298,61 @@
                      class="me-2">
             </a>
             
-            <!-- Botón toggler para móvil -->
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- Menú principal -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <!-- Dashboard -->
-                    <li class="nav-item">
-                        <a class="nav-link px-3 {{ 'active fw-bold' if request.endpoint == 'index' else '' }}" href="/">
-                            <i class="bi bi-speedometer2"></i> Inicio
-                        </a>
-                    </li>
-                    
-                    <!-- Equipos -->
-                    <li class="nav-item">
-                        <a class="nav-link px-3 {{ 'active fw-bold' if 'equipo' in request.endpoint else '' }}" 
-                           href="/equipos">
-                            <i class="bi bi-truck"></i> Equipos
-                        </a>
-                    </li>
-                    
-                    <!-- Trabajos -->
-                    <li class="nav-item">
-                        <a class="nav-link px-3 {{ 'active fw-bold' if 'trabajo' in request.endpoint else '' }}" 
-                           href="/trabajos">
-                            <i class="bi bi-wrench"></i> Trabajos
-                        </a>
-                    </li>
-                    
-                    <!-- Estadísticas -->
-                    <li class="nav-item">
-                        <a class="nav-link px-3 {{ 'active fw-bold' if request.endpoint == 'estadisticas' else '' }}" href="/estadisticas">
-                            <i class="bi bi-graph-up"></i> Estadísticas
-                        </a>
-                    </li>
-                    
-                    <!-- Botón de Configuración -->
-                    <li class="nav-item dropdown">
-                        <button class="btn btn-sm ms-3 dropdown-toggle" 
-                                style="background-color: var(--ead-red); color: white; border: none; transition: all 0.3s;" 
-                                onmouseover="this.style.backgroundColor='#b91c1c'" 
-                                onmouseout="this.style.backgroundColor='var(--ead-red)'" 
-                                data-bs-toggle="dropdown">
-                            <i class="bi bi-gear-fill"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 250px;">
-                            <li><h6 class="dropdown-header"><i class="bi bi-gear me-2"></i>Configuración</h6></li>
-                            
-                            <!-- Configuración General -->
-                            <li><a class="dropdown-item" href="#" onclick="toggleDarkMode(); return false;">
-                                <i class="bi bi-moon-stars me-2"></i> Modo Oscuro
-                                <span class="badge bg-secondary ms-auto">Beta</span>
-                            </a></li>
-                            
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage(); return false;">
-                                <i class="bi bi-translate me-2"></i> Idioma
-                            </a></li>
-                            
-                            <li><hr class="dropdown-divider"></li>
-                            
-                            <!-- Gestión de Datos -->
-                            <li><h6 class="dropdown-header"><i class="bi bi-database me-2"></i>Datos</h6></li>
-                            
-                            <li><a class="dropdown-item" href="/api/export/equipos">
-                                <i class="bi bi-file-earmark-spreadsheet me-2"></i> Exportar Equipos
-                            </a></li>
-                            
-                            <li><a class="dropdown-item" href="/api/export/trabajos">
-                                <i class="bi bi-file-earmark-spreadsheet me-2"></i> Exportar Trabajos
-                            </a></li>
-                            
-                            <li><a class="dropdown-item" href="#" onclick="backupDatabase(); return false;">
-                                <i class="bi bi-cloud-download me-2"></i> Backup Base de Datos
-                            </a></li>
-                            
-                            <li><hr class="dropdown-divider"></li>
-                            
-                            <!-- Sistema -->
-                            <li><h6 class="dropdown-header"><i class="bi bi-info-circle me-2"></i>Sistema</h6></li>
-                            
-                            <li><a class="dropdown-item" href="#" onclick="showAbout(); return false;">
-                                <i class="bi bi-building me-2"></i> Acerca de EAD
-                            </a></li>
-                            
-                            <li><a class="dropdown-item" href="#" onclick="window.location.reload()">
-                                <i class="bi bi-arrow-clockwise me-2"></i> Actualizar Página
-                            </a></li>
-                            
-                            <li><a class="dropdown-item text-danger" href="#" onclick="clearCache(); return false;">
-                                <i class="bi bi-trash me-2"></i> Limpiar Caché
-                            </a></li>
-                        </ul>
-                    </li>
-                </ul>
+            <!-- Menú principal solo para desktop -->
+            <div class="d-none d-lg-flex ms-auto align-items-center">
+                <a class="nav-link px-3 text-white {{ 'fw-bold' if request.endpoint == 'index' else '' }}" href="/">
+                    <i class="bi bi-speedometer2"></i> Inicio
+                </a>
+                <a class="nav-link px-3 text-white {{ 'fw-bold' if 'equipo' in request.endpoint else '' }}" href="/equipos">
+                    <i class="bi bi-truck"></i> Equipos
+                </a>
+                <a class="nav-link px-3 text-white {{ 'fw-bold' if 'trabajo' in request.endpoint else '' }}" href="/trabajos">
+                    <i class="bi bi-wrench"></i> Trabajos
+                </a>
+                <a class="nav-link px-3 text-white {{ 'fw-bold' if request.endpoint == 'estadisticas' else '' }}" href="/estadisticas">
+                    <i class="bi bi-graph-up"></i> Estadísticas
+                </a>
+                
+                <!-- Botón de Configuración solo desktop -->
+                <div class="dropdown ms-3">
+                    <button class="btn btn-sm dropdown-toggle" 
+                            style="background-color: var(--ead-red); color: white; border: none;" 
+                            data-bs-toggle="dropdown">
+                        <i class="bi bi-gear-fill"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 250px;">
+                        <li><h6 class="dropdown-header"><i class="bi bi-gear me-2"></i>Configuración</h6></li>
+                        <li><a class="dropdown-item" href="#" onclick="toggleDarkMode(); return false;">
+                            <i class="bi bi-moon-stars me-2"></i> Modo Oscuro
+                            <span class="badge bg-secondary ms-auto">Beta</span>
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="changeLanguage(); return false;">
+                            <i class="bi bi-translate me-2"></i> Idioma
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header"><i class="bi bi-database me-2"></i>Datos</h6></li>
+                        <li><a class="dropdown-item" href="/api/export/equipos">
+                            <i class="bi bi-file-earmark-spreadsheet me-2"></i> Exportar Equipos
+                        </a></li>
+                        <li><a class="dropdown-item" href="/api/export/trabajos">
+                            <i class="bi bi-file-earmark-spreadsheet me-2"></i> Exportar Trabajos
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="backupDatabase(); return false;">
+                            <i class="bi bi-cloud-download me-2"></i> Backup Base de Datos
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header"><i class="bi bi-info-circle me-2"></i>Sistema</h6></li>
+                        <li><a class="dropdown-item" href="#" onclick="showAbout(); return false;">
+                            <i class="bi bi-building me-2"></i> Acerca de EAD
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="window.location.reload()">
+                            <i class="bi bi-arrow-clockwise me-2"></i> Actualizar Página
+                        </a></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="clearCache(); return false;">
+                            <i class="bi bi-trash me-2"></i> Limpiar Caché
+                        </a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
@@ -437,6 +396,18 @@
                 </a>
                 
                 
+                <!-- Configuración -->
+                <div class="list-group-item bg-light">
+                    <small class="text-muted text-uppercase fw-bold">Configuración</small>
+                </div>
+                <a href="#" onclick="toggleDarkMode(); return false;" class="list-group-item list-group-item-action ps-4">
+                    <i class="bi bi-moon-stars me-2"></i> Modo Oscuro
+                    <span class="badge bg-secondary ms-auto">Beta</span>
+                </a>
+                <a href="#" onclick="changeLanguage(); return false;" class="list-group-item list-group-item-action ps-4">
+                    <i class="bi bi-translate me-2"></i> Idioma
+                </a>
+                
                 <!-- Exportar -->
                 <div class="list-group-item bg-light">
                     <small class="text-muted text-uppercase fw-bold">Exportar</small>
@@ -446,6 +417,23 @@
                 </a>
                 <a href="/api/export/trabajos" class="list-group-item list-group-item-action ps-4">
                     <i class="bi bi-download me-2"></i> Exportar Trabajos
+                </a>
+                <a href="#" onclick="backupDatabase(); return false;" class="list-group-item list-group-item-action ps-4">
+                    <i class="bi bi-cloud-download me-2"></i> Backup Base de Datos
+                </a>
+                
+                <!-- Sistema -->
+                <div class="list-group-item bg-light">
+                    <small class="text-muted text-uppercase fw-bold">Sistema</small>
+                </div>
+                <a href="#" onclick="showAbout(); return false;" class="list-group-item list-group-item-action ps-4">
+                    <i class="bi bi-building me-2"></i> Acerca de EAD
+                </a>
+                <a href="#" onclick="window.location.reload()" class="list-group-item list-group-item-action ps-4">
+                    <i class="bi bi-arrow-clockwise me-2"></i> Actualizar Página
+                </a>
+                <a href="#" onclick="clearCache(); return false;" class="list-group-item list-group-item-action ps-4 text-danger">
+                    <i class="bi bi-trash me-2"></i> Limpiar Caché
                 </a>
             </div>
         </div>
