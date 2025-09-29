@@ -372,7 +372,7 @@
             <div class="list-group list-group-flush">
                 <!-- Navegación Principal -->
                 <a href="/" class="list-group-item list-group-item-action py-3">
-                    <i class="bi bi-speedometer2 me-3"></i> Inicio
+                    <i class="bi bi-speedometer2 me-3" style="color: var(--ead-light-blue);"></i> Inicio
                 </a>
                 <a href="/equipos" class="list-group-item list-group-item-action py-3">
                     <i class="bi bi-truck me-3" style="color: var(--ead-blue);"></i> Equipos
@@ -381,7 +381,7 @@
                     <i class="bi bi-wrench me-3" style="color: var(--ead-red);"></i> Trabajos
                 </a>
                 <a href="/estadisticas" class="list-group-item list-group-item-action py-3">
-                    <i class="bi bi-graph-up me-3"></i> Estadísticas
+                    <i class="bi bi-graph-up me-3" style="color: var(--success-color);"></i> Estadísticas
                 </a>
                 
                 <!-- Acciones Rápidas -->
@@ -389,10 +389,10 @@
                     <small class="text-muted text-uppercase fw-bold">Acciones Rápidas</small>
                 </div>
                 <a href="/equipo/nuevo" class="list-group-item list-group-item-action ps-4">
-                    <i class="bi bi-plus-circle me-2"></i> Nuevo Equipo
+                    <i class="bi bi-plus-circle me-2" style="color: var(--ead-blue);"></i> Nuevo Equipo
                 </a>
                 <a href="/trabajo/nuevo" class="list-group-item list-group-item-action ps-4">
-                    <i class="bi bi-plus-circle me-2"></i> Nuevo Trabajo
+                    <i class="bi bi-plus-circle me-2" style="color: var(--ead-red);"></i> Nuevo Trabajo
                 </a>
                 
                 
@@ -401,11 +401,11 @@
                     <small class="text-muted text-uppercase fw-bold">Configuración</small>
                 </div>
                 <a href="#" onclick="toggleDarkMode(); return false;" class="list-group-item list-group-item-action ps-4">
-                    <i class="bi bi-moon-stars me-2"></i> Modo Oscuro
+                    <i class="bi bi-moon-stars me-2" style="color: var(--warning-color);"></i> Modo Oscuro
                     <span class="badge bg-secondary ms-auto">Beta</span>
                 </a>
                 <a href="#" onclick="changeLanguage(); return false;" class="list-group-item list-group-item-action ps-4">
-                    <i class="bi bi-translate me-2"></i> Idioma
+                    <i class="bi bi-translate me-2" style="color: var(--info-color);"></i> Idioma
                 </a>
                 
                 <!-- Exportar -->
@@ -413,13 +413,13 @@
                     <small class="text-muted text-uppercase fw-bold">Exportar</small>
                 </div>
                 <a href="/api/export/equipos" class="list-group-item list-group-item-action ps-4">
-                    <i class="bi bi-download me-2"></i> Exportar Equipos
+                    <i class="bi bi-download me-2" style="color: var(--ead-blue);"></i> Exportar Equipos
                 </a>
                 <a href="/api/export/trabajos" class="list-group-item list-group-item-action ps-4">
-                    <i class="bi bi-download me-2"></i> Exportar Trabajos
+                    <i class="bi bi-download me-2" style="color: var(--ead-red);"></i> Exportar Trabajos
                 </a>
                 <a href="#" onclick="backupDatabase(); return false;" class="list-group-item list-group-item-action ps-4">
-                    <i class="bi bi-cloud-download me-2"></i> Backup Base de Datos
+                    <i class="bi bi-cloud-download me-2" style="color: var(--success-color);"></i> Backup Base de Datos
                 </a>
                 
                 <!-- Sistema -->
@@ -427,13 +427,13 @@
                     <small class="text-muted text-uppercase fw-bold">Sistema</small>
                 </div>
                 <a href="#" onclick="showAbout(); return false;" class="list-group-item list-group-item-action ps-4">
-                    <i class="bi bi-building me-2"></i> Acerca de EAD
+                    <i class="bi bi-building me-2" style="color: var(--ead-blue);"></i> Acerca de EAD
                 </a>
                 <a href="#" onclick="window.location.reload()" class="list-group-item list-group-item-action ps-4">
-                    <i class="bi bi-arrow-clockwise me-2"></i> Actualizar Página
+                    <i class="bi bi-arrow-clockwise me-2" style="color: var(--info-color);"></i> Actualizar Página
                 </a>
                 <a href="#" onclick="clearCache(); return false;" class="list-group-item list-group-item-action ps-4 text-danger">
-                    <i class="bi bi-trash me-2"></i> Limpiar Caché
+                    <i class="bi bi-trash me-2" style="color: var(--danger-color);"></i> Limpiar Caché
                 </a>
             </div>
         </div>
