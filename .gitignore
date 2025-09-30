@@ -21,28 +21,11 @@ wheels/
 *.egg
 MANIFEST
 
-# PyInstaller
-*.manifest
-*.spec
+# Flask
+instance/
+.webassets-cache
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Environments
+# Environment variables
 .env
 .venv
 env/
@@ -50,6 +33,16 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads
+uploads/
+*.xlsx
+*.xls
 
 # IDE
 .vscode/
@@ -62,10 +55,10 @@ venv.bak/
 .DS_Store
 Thumbs.db
 
-# Local development
+# Logs
 *.log
-debug.log
+logs/
 
-# Database backups (opcional, descomenta si no quieres subir backups)
-# *.db.backup
-# backup_*.db
+# Temporary files
+*.tmp
+*.temp

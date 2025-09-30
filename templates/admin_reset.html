@@ -1,0 +1,454 @@
+{% extends "base.html" %}
+
+{% block title %}Vaciar Aplicación - EAD Oleohidráulica{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+            <li class="breadcrumb-item active">Administración</li>
+            <li class="breadcrumb-item active">Vaciar Aplicación</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <!-- Advertencia Principal -->
+            <div class="alert alert-danger border-0 shadow-sm mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill fs-2 me-3"></i>
+                    <div>
+                        <h4 class="alert-heading mb-2">⚠️ ZONA DE PELIGRO</h4>
+                        <p class="mb-0">Esta acción eliminará TODA la información de la aplicación de forma PERMANENTE.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información Actual -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2" style="color: var(--info-color);"></i>
+                        Información Actual en la Aplicación
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="border-end">
+                                <h3 class="mb-1" style="color: var(--warning-color);">{{ stats.total_clients }}</h3>
+                                <small class="text-muted">Clientes</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border-end">
+                                <h3 class="mb-1" style="color: var(--ead-blue);">{{ stats.total_equipments }}</h3>
+                                <small class="text-muted">Equipos</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="mb-1" style="color: var(--ead-red);">{{ stats.total_jobs }}</h3>
+                            <small class="text-muted">Trabajos</small>
+                        </div>
+                    </div>
+                    
+                    {% if stats.total_clients == 0 and stats.total_equipments == 0 and stats.total_jobs == 0 %}
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        La aplicación ya está vacía. No hay datos para eliminar.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Opciones de Reset -->
+            <div class="row">
+                <!-- Limpiar Duplicados -->
+                <div class="col-md-4 mb-4">
+                    <div class="card border-info shadow-sm h-100">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">
+                                <i class="bi bi-arrow-repeat me-2"></i>
+                                Limpiar Duplicados
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Elimina trabajos duplicados (mismo equipo, misma fecha) manteniendo solo el primero.</p>
+                            
+                            <div class="mb-3">
+                                <strong>Se eliminará:</strong>
+                                <ul class="small mt-2">
+                                    <li>Trabajos duplicados</li>
+                                    <li>Registros redundantes</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Se conservará:</strong>
+                                <ul class="small mt-2">
+                                    <li>Primer trabajo de cada fecha</li>
+                                    <li>Todos los datos únicos</li>
+                                </ul>
+                            </div>
+                            
+                            <button type="button" 
+                                    class="btn btn-info w-100" 
+                                    onclick="cleanDuplicates()">
+                                <i class="bi bi-arrow-repeat me-2"></i>
+                                Limpiar Duplicados
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vaciar Datos -->
+                <div class="col-md-4 mb-4">
+                    <div class="card border-warning shadow-sm h-100">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0">
+                                <i class="bi bi-trash me-2"></i>
+                                Vaciar Datos
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Elimina todos los clientes, equipos y trabajos, pero mantiene la estructura de la base de datos.</p>
+                            
+                            <div class="mb-3">
+                                <strong>Se eliminará:</strong>
+                                <ul class="small mt-2">
+                                    <li>Todos los clientes</li>
+                                    <li>Todos los equipos</li>
+                                    <li>Todos los trabajos</li>
+                                    <li>Archivos temporales</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Se conservará:</strong>
+                                <ul class="small mt-2">
+                                    <li>Estructura de base de datos</li>
+                                    <li>Configuraciones</li>
+                                </ul>
+                            </div>
+                            
+                            <button type="button" 
+                                    class="btn btn-warning w-100" 
+                                    onclick="showResetModal()"
+                                    {% if stats.total_clients == 0 and stats.total_equipments == 0 and stats.total_jobs == 0 %}disabled{% endif %}>
+                                <i class="bi bi-trash me-2"></i>
+                                Vaciar Datos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reset Completo -->
+                <div class="col-md-4 mb-4">
+                    <div class="card border-danger shadow-sm h-100">
+                        <div class="card-header bg-danger text-white">
+                            <h6 class="mb-0">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Reset Completo
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Elimina completamente la base de datos y la recrea desde cero.</p>
+                            
+                            <div class="mb-3">
+                                <strong>Se eliminará:</strong>
+                                <ul class="small mt-2">
+                                    <li>Base de datos completa</li>
+                                    <li>Todos los datos</li>
+                                    <li>Historial de IDs</li>
+                                    <li>Archivos temporales</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="alert alert-danger small mb-3">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                <strong>¡IRREVERSIBLE!</strong> No se puede deshacer.
+                            </div>
+                            
+                            <button type="button" 
+                                    class="btn btn-danger w-100" 
+                                    onclick="showDatabaseResetModal()">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Reset Completo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón Volver -->
+            <div class="text-center">
+                <a href="/" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Volver al Inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Vaciar Datos -->
+<div class="modal fade" id="resetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="bi bi-trash me-2"></i>
+                    Confirmar Vaciado de Datos
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>¡Atención!</strong> Esta acción eliminará todos los datos de la aplicación.
+                </div>
+                
+                <p>Se eliminarán:</p>
+                <ul>
+                    <li><strong>{{ stats.total_clients }}</strong> clientes</li>
+                    <li><strong>{{ stats.total_equipments }}</strong> equipos</li>
+                    <li><strong>{{ stats.total_jobs }}</strong> trabajos</li>
+                </ul>
+                
+                <p class="mb-3">Para confirmar, escriba exactamente: <code>VACIAR TODO</code></p>
+                
+                <form id="resetForm">
+                    <div class="mb-3">
+                        <input type="text" 
+                               class="form-control" 
+                               id="resetConfirmation" 
+                               placeholder="Escriba: VACIAR TODO"
+                               autocomplete="off">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" onclick="confirmReset()" id="confirmResetBtn" disabled>
+                    <i class="bi bi-trash me-2"></i>
+                    Vaciar Aplicación
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reset Base de Datos -->
+<div class="modal fade" id="databaseResetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Confirmar Reset Completo
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>¡PELIGRO!</strong> Esta acción es IRREVERSIBLE y eliminará la base de datos completa.
+                </div>
+                
+                <p>Esta acción:</p>
+                <ul>
+                    <li>Eliminará el archivo de base de datos</li>
+                    <li>Recreará la base de datos vacía</li>
+                    <li>Reseteará todos los IDs a 1</li>
+                    <li>No se puede deshacer</li>
+                </ul>
+                
+                <p class="mb-3">Para confirmar, escriba exactamente: <code>RESETEAR BASE DE DATOS</code></p>
+                
+                <form id="databaseResetForm">
+                    <div class="mb-3">
+                        <input type="text" 
+                               class="form-control" 
+                               id="databaseResetConfirmation" 
+                               placeholder="Escriba: RESETEAR BASE DE DATOS"
+                               autocomplete="off">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDatabaseReset()" id="confirmDatabaseResetBtn" disabled>
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Reset Completo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Progreso -->
+<div class="modal fade" id="progressModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Procesando...</span>
+                </div>
+                <h6 id="progressText">Procesando...</h6>
+                <p class="text-muted mb-0" id="progressSubtext">Por favor espere</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validación de confirmación para vaciar datos
+document.getElementById('resetConfirmation').addEventListener('input', function() {
+    const confirmBtn = document.getElementById('confirmResetBtn');
+    const isValid = this.value.trim().toUpperCase() === 'VACIAR TODO';
+    confirmBtn.disabled = !isValid;
+    
+    if (isValid) {
+        confirmBtn.classList.remove('btn-warning');
+        confirmBtn.classList.add('btn-danger');
+    } else {
+        confirmBtn.classList.remove('btn-danger');
+        confirmBtn.classList.add('btn-warning');
+    }
+});
+
+// Validación de confirmación para reset de base de datos
+document.getElementById('databaseResetConfirmation').addEventListener('input', function() {
+    const confirmBtn = document.getElementById('confirmDatabaseResetBtn');
+    const isValid = this.value.trim().toUpperCase() === 'RESETEAR BASE DE DATOS';
+    confirmBtn.disabled = !isValid;
+});
+
+function showResetModal() {
+    const resetModal = new bootstrap.Modal(document.getElementById('resetModal'));
+    resetModal.show();
+}
+
+function showDatabaseResetModal() {
+    const databaseResetModal = new bootstrap.Modal(document.getElementById('databaseResetModal'));
+    databaseResetModal.show();
+}
+
+function confirmReset() {
+    const confirmation = document.getElementById('resetConfirmation').value;
+    
+    // Mostrar modal de progreso
+    const resetModal = bootstrap.Modal.getInstance(document.getElementById('resetModal'));
+    resetModal.hide();
+    
+    const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+    document.getElementById('progressText').textContent = 'Vaciando aplicación...';
+    document.getElementById('progressSubtext').textContent = 'Eliminando todos los datos';
+    progressModal.show();
+    
+    // Enviar solicitud
+    fetch('/admin/reset/confirm', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'confirmation=' + encodeURIComponent(confirmation)
+    })
+    .then(response => response.json())
+    .then(data => {
+        progressModal.hide();
+        
+        if (data.success) {
+            showNotification('Aplicación vaciada exitosamente', 'success');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        } else {
+            showNotification(data.error || 'Error vaciando la aplicación', 'error');
+        }
+    })
+    .catch(error => {
+        progressModal.hide();
+        console.error('Error:', error);
+        showNotification('Error procesando la solicitud', 'error');
+    });
+}
+
+function confirmDatabaseReset() {
+    const confirmation = document.getElementById('databaseResetConfirmation').value;
+    
+    // Mostrar modal de progreso
+    const databaseResetModal = bootstrap.Modal.getInstance(document.getElementById('databaseResetModal'));
+    databaseResetModal.hide();
+    
+    const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+    document.getElementById('progressText').textContent = 'Reseteando base de datos...';
+    document.getElementById('progressSubtext').textContent = 'Eliminando y recreando base de datos';
+    progressModal.show();
+    
+    // Enviar solicitud
+    fetch('/admin/reset/database', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'confirmation=' + encodeURIComponent(confirmation)
+    })
+    .then(response => response.json())
+    .then(data => {
+        progressModal.hide();
+        
+        if (data.success) {
+            showNotification('Base de datos reseteada exitosamente', 'success');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        } else {
+            showNotification(data.error || 'Error reseteando la base de datos', 'error');
+        }
+    })
+    .catch(error => {
+        progressModal.hide();
+        console.error('Error:', error);
+        showNotification('Error procesando la solicitud', 'error');
+    });
+}
+
+function cleanDuplicates() {
+    // Mostrar modal de progreso
+    const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+    document.getElementById('progressText').textContent = 'Limpiando duplicados...';
+    document.getElementById('progressSubtext').textContent = 'Eliminando trabajos duplicados';
+    progressModal.show();
+    
+    // Enviar solicitud
+    fetch('/admin/clean-duplicates', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        progressModal.hide();
+        
+        if (data.success) {
+            showNotification(data.message, 'success');
+            // Recargar la página para actualizar estadísticas
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            showNotification(data.error || 'Error limpiando duplicados', 'error');
+        }
+    })
+    .catch(error => {
+        progressModal.hide();
+        console.error('Error:', error);
+        showNotification('Error procesando la solicitud', 'error');
+    });
+}
+</script>
+{% endblock %}

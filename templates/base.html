@@ -208,6 +208,44 @@
             border-top-color: var(--primary-color);
         }
         
+        .clickable-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .clickable-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .clickable-card:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Tarjetas de equipos y trabajos clickeables */
+        .equipment-card, .job-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .equipment-card:hover, .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            border-color: var(--ead-blue);
+        }
+        
+        .equipment-card:active, .job-card:active {
+            transform: translateY(0px);
+        }
+        
+        /* Mantener colores de texto en hover */
+        .clickable-card:hover .text-muted,
+        .equipment-card:hover .text-muted,
+        .job-card:hover .text-muted {
+            color: var(--text-muted) !important;
+        }
+        
         /* Buttons */
         .btn {
             border-radius: 0.5rem;
@@ -425,8 +463,14 @@
                 <a class="nav-link px-3 text-white {{ 'fw-bold' if request.endpoint and 'trabajo' in request.endpoint else '' }}" href="/trabajos">
                     <i class="bi bi-wrench"></i> Trabajos
                 </a>
+                <a class="nav-link px-3 text-white {{ 'fw-bold' if request.endpoint and 'cliente' in request.endpoint else '' }}" href="/clientes">
+                    <i class="bi bi-people"></i> Clientes
+                </a>
                 <a class="nav-link px-3 text-white {{ 'fw-bold' if request.endpoint == 'estadisticas' else '' }}" href="/estadisticas">
                     <i class="bi bi-graph-up"></i> Estadísticas
+                </a>
+                <a class="nav-link px-3 text-white {{ 'fw-bold' if 'import' in (request.endpoint or '') else '' }}" href="/import/excel">
+                    <i class="bi bi-file-earmark-excel"></i> Importar Excel
                 </a>
                 
                 <!-- Botón de Configuración solo desktop -->
@@ -458,6 +502,9 @@
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header"><i class="bi bi-database me-2"></i>Datos</h6></li>
+                        <li><a class="dropdown-item" href="/import/excel">
+                            <i class="bi bi-file-earmark-excel me-2" style="color: var(--success-color);"></i> Importar Excel
+                        </a></li>
                         <li><a class="dropdown-item" href="/api/export/equipos">
                             <i class="bi bi-file-earmark-spreadsheet me-2"></i> Exportar Equipos
                         </a></li>
@@ -466,6 +513,11 @@
                         </a></li>
                         <li><a class="dropdown-item" href="#" onclick="backupDatabase(); return false;">
                             <i class="bi bi-cloud-download me-2"></i> Backup Base de Datos
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header"><i class="bi bi-exclamation-triangle me-2"></i>Administración</h6></li>
+                        <li><a class="dropdown-item text-danger" href="/admin/reset">
+                            <i class="bi bi-trash me-2"></i> Vaciar Aplicación
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header"><i class="bi bi-info-circle me-2"></i>Sistema</h6></li>
@@ -507,6 +559,9 @@
                 <a href="/trabajos" class="list-group-item list-group-item-action py-3" onclick="closeSidebar()">
                     <i class="bi bi-wrench me-3" style="color: var(--ead-red);"></i> Trabajos
                 </a>
+                <a href="/clientes" class="list-group-item list-group-item-action py-3" onclick="closeSidebar()">
+                    <i class="bi bi-people me-3" style="color: var(--warning-color);"></i> Clientes
+                </a>
                 <a href="/estadisticas" class="list-group-item list-group-item-action py-3" onclick="closeSidebar()">
                     <i class="bi bi-graph-up me-3" style="color: var(--success-color);"></i> Estadísticas
                 </a>
@@ -547,10 +602,13 @@
                     <i class="bi bi-translate me-2" style="color: var(--info-color);"></i> Idioma
                 </a>
                 
-                <!-- Exportar -->
+                <!-- Datos -->
                 <div class="list-group-item bg-light">
-                    <small class="text-muted text-uppercase fw-bold">Exportar</small>
+                    <small class="text-muted text-uppercase fw-bold">Datos</small>
                 </div>
+                <a href="/import/excel" class="list-group-item list-group-item-action ps-4" onclick="closeSidebar()">
+                    <i class="bi bi-file-earmark-excel me-2" style="color: var(--success-color);"></i> Importar Excel
+                </a>
                 <a href="/api/export/equipos" class="list-group-item list-group-item-action ps-4" onclick="closeSidebar()">
                     <i class="bi bi-download me-2" style="color: var(--ead-blue);"></i> Exportar Equipos
                 </a>
@@ -559,6 +617,14 @@
                 </a>
                 <a href="javascript:void(0)" onclick="backupDatabase(); closeSidebar();" class="list-group-item list-group-item-action ps-4">
                     <i class="bi bi-cloud-download me-2" style="color: var(--success-color);"></i> Backup Base de Datos
+                </a>
+                
+                <!-- Administración -->
+                <div class="list-group-item bg-light">
+                    <small class="text-muted text-uppercase fw-bold">Administración</small>
+                </div>
+                <a href="/admin/reset" class="list-group-item list-group-item-action ps-4 text-danger" onclick="closeSidebar()">
+                    <i class="bi bi-trash me-2" style="color: var(--danger-color);"></i> Vaciar Aplicación
                 </a>
                 
                 <!-- Sistema -->

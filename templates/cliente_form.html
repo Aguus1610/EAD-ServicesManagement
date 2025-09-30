@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if cliente else 'Nuevo' }} Cliente - EAD Oleohidráulica{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="/clientes">Clientes</a></li>
+            {% if cliente %}
+            <li class="breadcrumb-item"><a href="/cliente/{{ cliente.id }}">{{ cliente.nombre }}</a></li>
+            <li class="breadcrumb-item active">Editar</li>
+            {% else %}
+            <li class="breadcrumb-item active">Nuevo Cliente</li>
+            {% endif %}
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header text-white" style="background-color: var(--ead-blue);">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-{{ 'gear' if cliente else 'plus' }} me-2"></i>
+                        {{ 'Editar Cliente' if cliente else 'Nuevo Cliente' }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <!-- Información básica -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-primary mb-3">
+                                <i class="bi bi-person me-2"></i>
+                                Información Básica
+                            </h6>
+                            
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label fw-bold">
+                                    Nombre Completo / Razón Social <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="nombre" 
+                                       name="nombre" 
+                                       value="{{ cliente.nombre if cliente else '' }}" 
+                                       required>
+                                <div class="form-text">Nombre del cliente o empresa</div>
+                            </div>
+                        </div>
+
+                        <!-- Información de contacto -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-success mb-3">
+                                <i class="bi bi-telephone me-2"></i>
+                                Información de Contacto
+                            </h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="telefono" class="form-label">Teléfono</label>
+                                        <input type="tel" 
+                                               class="form-control" 
+                                               id="telefono" 
+                                               name="telefono" 
+                                               value="{{ cliente.telefono if cliente and cliente.telefono else '' }}"
+                                               placeholder="+54 9 11 1234-5678">
+                                        <div class="form-text">Número de contacto principal</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" 
+                                               class="form-control" 
+                                               id="email" 
+                                               name="email" 
+                                               value="{{ cliente.email if cliente and cliente.email else '' }}"
+                                               placeholder="cliente@ejemplo.com">
+                                        <div class="form-text">Correo electrónico</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="direccion" class="form-label">Dirección</label>
+                                <textarea class="form-control" 
+                                          id="direccion" 
+                                          name="direccion" 
+                                          rows="2"
+                                          placeholder="Calle, número, ciudad, provincia, código postal">{{ cliente.direccion if cliente and cliente.direccion else '' }}</textarea>
+                                <div class="form-text">Dirección completa del cliente</div>
+                            </div>
+                        </div>
+
+                        <!-- Información fiscal -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-warning mb-3">
+                                <i class="bi bi-card-text me-2"></i>
+                                Información Fiscal
+                            </h6>
+                            
+                            <div class="mb-3">
+                                <label for="cuit_cuil" class="form-label">CUIT / CUIL</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="cuit_cuil" 
+                                       name="cuit_cuil" 
+                                       value="{{ cliente.cuit_cuil if cliente and cliente.cuit_cuil else '' }}"
+                                       placeholder="20-12345678-9"
+                                       pattern="[0-9]{2}-[0-9]{8}-[0-9]{1}"
+                                       maxlength="13">
+                                <div class="form-text">Formato: XX-XXXXXXXX-X</div>
+                            </div>
+                        </div>
+
+                        <!-- Notas adicionales -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-info mb-3">
+                                <i class="bi bi-journal-text me-2"></i>
+                                Notas Adicionales
+                            </h6>
+                            
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Observaciones</label>
+                                <textarea class="form-control" 
+                                          id="notes" 
+                                          name="notes" 
+                                          rows="3"
+                                          placeholder="Información adicional sobre el cliente...">{{ cliente.notes if cliente and cliente.notes else '' }}</textarea>
+                                <div class="form-text">Notas internas, condiciones especiales, etc.</div>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ '/cliente/' + cliente.id|string if cliente else '/clientes' }}" 
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>
+                                {{ 'Actualizar Cliente' if cliente else 'Crear Cliente' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información adicional para edición -->
+            {% if cliente %}
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Información del Cliente
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">Cliente desde:</small>
+                            <div>{{ cliente.created_at.strftime('%d/%m/%Y') if cliente.created_at else 'No disponible' }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">ID del Cliente:</small>
+                            <div>#{{ cliente.id }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para validación -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Formatear CUIT/CUIL automáticamente
+    const cuitInput = document.getElementById('cuit_cuil');
+    if (cuitInput) {
+        cuitInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // Solo números
+            
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '-' + value.substring(2);
+            }
+            if (value.length >= 12) {
+                value = value.substring(0, 12) + '-' + value.substring(12, 13);
+            }
+            
+            e.target.value = value.substring(0, 13); // Máximo 13 caracteres
+        });
+    }
+    
+    // Validación del formulario
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const nombre = document.getElementById('nombre').value.trim();
+        
+        if (!nombre) {
+            e.preventDefault();
+            alert('El nombre del cliente es obligatorio');
+            document.getElementById('nombre').focus();
+            return false;
+        }
+        
+        // Validar formato de email si se proporciona
+        const email = document.getElementById('email').value.trim();
+        if (email && !isValidEmail(email)) {
+            e.preventDefault();
+            alert('Por favor ingrese un email válido');
+            document.getElementById('email').focus();
+            return false;
+        }
+    });
+    
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+});
+</script>
+{% endblock %}

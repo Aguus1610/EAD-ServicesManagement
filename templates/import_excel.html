@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Importar desde Excel - EAD Oleohidráulica{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+            <li class="breadcrumb-item active">Importar Excel</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <!-- Header -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header text-white" style="background-color: var(--ead-blue);">
+                    <h4 class="mb-0">
+                        <i class="bi bi-file-earmark-excel me-2"></i>
+                        Importar Datos desde Excel
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-0">
+                        Importe equipos y trabajos desde archivos Excel con formato específico.
+                        El sistema procesará cada hoja como un cliente diferente.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Instrucciones -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2" style="color: var(--ead-light-blue);"></i>
+                        Formato del Archivo Excel
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-primary">Estructura Requerida:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check-circle text-success me-2"></i> Cada hoja = Un cliente</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i> Columnas: EQUIPO, FECHA, REPUESTOS, MANO DE OBRA</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i> Formatos: .xlsx o .xls</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i> Tamaño máximo: 16MB</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-warning">Importante:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-exclamation-triangle text-warning me-2"></i> Los equipos se crearán automáticamente</li>
+                                <li><i class="bi bi-exclamation-triangle text-warning me-2"></i> Las fechas deben estar en formato válido</li>
+                                <li><i class="bi bi-exclamation-triangle text-warning me-2"></i> Se combinará REPUESTOS y MANO DE OBRA</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de carga -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form id="importForm" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label for="excel_file" class="form-label fw-bold">
+                                <i class="bi bi-cloud-upload me-2"></i>
+                                Seleccionar Archivo Excel
+                            </label>
+                            <input type="file" 
+                                   class="form-control form-control-lg" 
+                                   id="excel_file" 
+                                   name="excel_file" 
+                                   accept=".xlsx,.xls" 
+                                   required>
+                            <div class="form-text">
+                                Seleccione un archivo Excel (.xlsx o .xls) con la estructura requerida.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="uploadBtn">
+                                <i class="bi bi-upload me-2"></i>
+                                Procesar Archivo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div id="progressContainer" class="card border-0 shadow-sm mt-4" style="display: none;">
+                <div class="card-body text-center">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Procesando...</span>
+                    </div>
+                    <h5>Procesando archivo...</h5>
+                    <p class="text-muted mb-0">Por favor espere mientras se analiza el contenido del Excel.</p>
+                </div>
+            </div>
+
+            <!-- Preview -->
+            <div id="previewContainer" class="card border-0 shadow-sm mt-4" style="display: none;">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-eye me-2" style="color: var(--ead-light-blue);"></i>
+                        Vista Previa de Datos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Resumen -->
+                    <div id="summaryContainer" class="row mb-4"></div>
+                    
+                    <!-- Tabla de preview -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Equipo</th>
+                                    <th>Fecha</th>
+                                    <th>Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Botones de confirmación -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <button type="button" class="btn btn-outline-danger" onclick="cancelImport()">
+                            <i class="bi bi-x-circle me-2"></i>
+                            Cancelar
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="confirmImport()">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Confirmar Importación
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+document.getElementById('importForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('excel_file');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        showNotification('Por favor seleccione un archivo', 'warning');
+        return;
+    }
+    
+    // Mostrar progress
+    document.getElementById('progressContainer').style.display = 'block';
+    document.getElementById('previewContainer').style.display = 'none';
+    document.getElementById('uploadBtn').disabled = true;
+    
+    // Crear FormData
+    const formData = new FormData();
+    formData.append('excel_file', file);
+    
+    // Enviar archivo
+    fetch('/import/excel', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('progressContainer').style.display = 'none';
+        document.getElementById('uploadBtn').disabled = false;
+        
+        if (data.success) {
+            showPreview(data);
+        } else {
+            showNotification(data.error, 'error');
+            if (data.details) {
+                console.error('Detalles del error:', data.details);
+            }
+        }
+    })
+    .catch(error => {
+        document.getElementById('progressContainer').style.display = 'none';
+        document.getElementById('uploadBtn').disabled = false;
+        console.error('Error:', error);
+        showNotification('Error procesando archivo', 'error');
+    });
+});
+
+function showPreview(data) {
+    const container = document.getElementById('previewContainer');
+    const summaryContainer = document.getElementById('summaryContainer');
+    const tableBody = document.getElementById('previewTableBody');
+    
+    // Mostrar resumen
+    summaryContainer.innerHTML = `
+        <div class="col-md-3">
+            <div class="text-center">
+                <h4 class="text-primary mb-1">${data.summary.total_records}</h4>
+                <small class="text-muted">Registros</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <h4 class="text-success mb-1">${data.summary.clients.length}</h4>
+                <small class="text-muted">Clientes</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <h4 class="text-info mb-1">${data.summary.equipments.length}</h4>
+                <small class="text-muted">Equipos</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <h4 class="text-warning mb-1">${data.summary.date_range.start} - ${data.summary.date_range.end}</h4>
+                <small class="text-muted">Rango Fechas</small>
+            </div>
+        </div>
+    `;
+    
+    // Mostrar tabla
+    tableBody.innerHTML = '';
+    data.preview.forEach(record => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><span class="badge bg-primary">${record.client}</span></td>
+            <td><strong>${record.equipment}</strong></td>
+            <td>${record.date}</td>
+            <td>${record.description.substring(0, 100)}${record.description.length > 100 ? '...' : ''}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+    
+    container.style.display = 'block';
+    container.scrollIntoView({ behavior: 'smooth' });
+}
+
+function confirmImport() {
+    // Mostrar progress
+    document.getElementById('progressContainer').style.display = 'block';
+    document.getElementById('previewContainer').style.display = 'none';
+    
+    fetch('/import/excel/confirm', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('progressContainer').style.display = 'none';
+        
+        if (data.success) {
+            let message = `Importación exitosa: `;
+            if (data.summary.clients_created > 0) {
+                message += `${data.summary.clients_created} clientes creados, `;
+            }
+            message += `${data.summary.equipments_created} equipos creados, ${data.summary.jobs_created} trabajos creados`;
+            showNotification(message, 'success');
+            
+            // Redirigir después de un momento
+            setTimeout(() => {
+                window.location.href = '/equipos';
+            }, 3000);
+        } else {
+            showNotification(data.error, 'error');
+            if (data.details) {
+                console.error('Detalles del error:', data.details);
+            }
+        }
+    })
+    .catch(error => {
+        document.getElementById('progressContainer').style.display = 'none';
+        console.error('Error:', error);
+        showNotification('Error confirmando importación', 'error');
+    });
+}
+
+function cancelImport() {
+    fetch('/import/excel/cancel', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        showNotification('Importación cancelada', 'info');
+        document.getElementById('previewContainer').style.display = 'none';
+        document.getElementById('importForm').reset();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes - EAD Oleohidráulica{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+            <li class="breadcrumb-item active">Clientes</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">
+                <i class="bi bi-people-fill me-2" style="color: var(--ead-blue);"></i>
+                Gestión de Clientes
+            </h2>
+            <p class="text-muted mb-0">Administra la información de tus clientes</p>
+        </div>
+        <a href="/cliente/nuevo" class="btn btn-primary">
+            <i class="bi bi-person-plus me-2"></i>
+            Nuevo Cliente
+        </a>
+    </div>
+
+    <!-- Buscador y filtros -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control" 
+                               name="search" 
+                               placeholder="Buscar por nombre, teléfono, email o CUIT/CUIL..." 
+                               value="{{ search }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-funnel me-2"></i>
+                        Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-people fs-1 mb-2" style="color: var(--ead-blue);"></i>
+                    <h4 class="mb-1">{{ total_clientes }}</h4>
+                    <small class="text-muted">Total Clientes</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-check fs-1 mb-2" style="color: var(--success-color);"></i>
+                    <h4 class="mb-1">{{ clientes|selectattr('equipos_count', 'gt', 0)|list|length }}</h4>
+                    <small class="text-muted">Con Equipos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-telephone fs-1 mb-2" style="color: var(--warning-color);"></i>
+                    <h4 class="mb-1">{{ clientes|selectattr('telefono')|list|length }}</h4>
+                    <small class="text-muted">Con Teléfono</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-envelope fs-1 mb-2" style="color: var(--info-color);"></i>
+                    <h4 class="mb-1">{{ clientes|selectattr('email')|list|length }}</h4>
+                    <small class="text-muted">Con Email</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de clientes -->
+    {% if clientes %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="bi bi-list-ul me-2"></i>
+                Lista de Clientes ({{ total_clientes }})
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <!-- Vista móvil: Cards -->
+            <div class="d-block d-md-none">
+                {% for cliente in clientes %}
+                <div class="card border-0 border-bottom">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">
+                                    <a href="/cliente/{{ cliente.id }}" class="text-decoration-none">
+                                        <i class="bi bi-person-circle me-2" style="color: var(--ead-blue);"></i>
+                                        {{ cliente.nombre }}
+                                    </a>
+                                </h6>
+                                
+                                {% if cliente.telefono %}
+                                <p class="mb-1 small text-muted">
+                                    <i class="bi bi-telephone me-1"></i>
+                                    {{ cliente.telefono }}
+                                </p>
+                                {% endif %}
+                                
+                                {% if cliente.email %}
+                                <p class="mb-1 small text-muted">
+                                    <i class="bi bi-envelope me-1"></i>
+                                    {{ cliente.email }}
+                                </p>
+                                {% endif %}
+                                
+                                {% if cliente.cuit_cuil %}
+                                <p class="mb-1 small text-muted">
+                                    <i class="bi bi-card-text me-1"></i>
+                                    {{ cliente.cuit_cuil }}
+                                </p>
+                                {% endif %}
+                                
+                                <div class="mt-2">
+                                    <span class="badge bg-primary">{{ cliente.equipos_count }} equipos</span>
+                                    <small class="text-muted ms-2">Desde: {{ cliente.created_at }}</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Menú de acciones -->
+                            <div class="dropdown ms-2">
+                                <button class="btn btn-sm btn-outline-secondary" type="button"
+                                        data-bs-toggle="dropdown" 
+                                        aria-expanded="false"
+                                        id="dropdownMenuCliente{{ cliente.id }}">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuCliente{{ cliente.id }}">
+                                    <li><a class="dropdown-item" href="/cliente/{{ cliente.id }}">
+                                        <i class="bi bi-eye"></i> Ver detalle
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/cliente/{{ cliente.id }}/editar">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="post" action="/cliente/{{ cliente.id }}/eliminar" 
+                                              onsubmit="return confirm('¿Eliminar este cliente? Los equipos asociados quedarán sin cliente.')">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="bi bi-trash"></i> Eliminar
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Vista desktop: Tabla -->
+            <div class="d-none d-md-block table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Contacto</th>
+                            <th>CUIT/CUIL</th>
+                            <th>Equipos</th>
+                            <th>Registrado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes %}
+                        <tr>
+                            <td>
+                                <div>
+                                    <a href="/cliente/{{ cliente.id }}" class="text-decoration-none fw-bold">
+                                        {{ cliente.nombre }}
+                                    </a>
+                                    {% if cliente.direccion %}
+                                    <br><small class="text-muted">{{ cliente.direccion[:50] }}{% if cliente.direccion|length > 50 %}...{% endif %}</small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if cliente.telefono %}
+                                <div><i class="bi bi-telephone me-1"></i> {{ cliente.telefono }}</div>
+                                {% endif %}
+                                {% if cliente.email %}
+                                <div><i class="bi bi-envelope me-1"></i> {{ cliente.email }}</div>
+                                {% endif %}
+                                {% if not cliente.telefono and not cliente.email %}
+                                <span class="text-muted">Sin contacto</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ cliente.cuit_cuil or '-' }}</td>
+                            <td>
+                                <span class="badge bg-primary">{{ cliente.equipos_count }}</span>
+                            </td>
+                            <td>{{ cliente.created_at }}</td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <a href="/cliente/{{ cliente.id }}" 
+                                       class="btn btn-sm btn-outline-primary" 
+                                       title="Ver detalle">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="/cliente/{{ cliente.id }}/editar" 
+                                       class="btn btn-sm btn-outline-secondary"
+                                       title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form method="post" 
+                                          action="/cliente/{{ cliente.id }}/eliminar" 
+                                          onsubmit="return confirm('¿Eliminar este cliente?')" 
+                                          style="display: inline;">
+                                        <button type="submit" 
+                                                class="btn btn-sm btn-outline-danger"
+                                                title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-people fs-1 text-muted mb-3"></i>
+        <h4>No hay clientes registrados</h4>
+        <p class="text-muted mb-4">Comienza agregando tu primer cliente</p>
+        <a href="/cliente/nuevo" class="btn btn-primary">
+            <i class="bi bi-person-plus me-2"></i>
+            Crear Primer Cliente
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

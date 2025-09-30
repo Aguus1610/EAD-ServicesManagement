@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}{{ cliente.nombre }} - EAD Oleohidráulica{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="/clientes">Clientes</a></li>
+            <li class="breadcrumb-item active">{{ cliente.nombre }}</li>
+        </ol>
+    </nav>
+
+    <!-- Header del cliente -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px; background-color: var(--ead-blue); color: white;">
+                                <i class="bi bi-person-fill fs-3"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="mb-1">{{ cliente.nombre }}</h2>
+                            <div class="text-muted">
+                                {% if cliente.cuit_cuil %}
+                                <span class="me-3">
+                                    <i class="bi bi-card-text me-1"></i>
+                                    {{ cliente.cuit_cuil }}
+                                </span>
+                                {% endif %}
+                                <span>
+                                    <i class="bi bi-calendar me-1"></i>
+                                    Cliente desde {{ cliente.created_at.strftime('%d/%m/%Y') if cliente.created_at else 'N/A' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="btn-group">
+                        <a href="/cliente/{{ cliente.id }}/editar" class="btn btn-outline-primary">
+                            <i class="bi bi-pencil me-2"></i>
+                            Editar
+                        </a>
+                        <button type="button" class="btn btn-outline-danger" 
+                                onclick="confirmDelete()">
+                            <i class="bi bi-trash me-2"></i>
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Información del cliente -->
+        <div class="col-md-4">
+            <!-- Información de contacto -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-telephone me-2" style="color: var(--success-color);"></i>
+                        Información de Contacto
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if cliente.telefono %}
+                    <div class="mb-3">
+                        <small class="text-muted">Teléfono:</small>
+                        <div>
+                            <a href="tel:{{ cliente.telefono }}" class="text-decoration-none">
+                                <i class="bi bi-telephone me-2"></i>
+                                {{ cliente.telefono }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if cliente.email %}
+                    <div class="mb-3">
+                        <small class="text-muted">Email:</small>
+                        <div>
+                            <a href="mailto:{{ cliente.email }}" class="text-decoration-none">
+                                <i class="bi bi-envelope me-2"></i>
+                                {{ cliente.email }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if cliente.direccion %}
+                    <div class="mb-3">
+                        <small class="text-muted">Dirección:</small>
+                        <div>
+                            <i class="bi bi-geo-alt me-2"></i>
+                            {{ cliente.direccion }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if not cliente.telefono and not cliente.email and not cliente.direccion %}
+                    <div class="text-muted text-center py-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        No hay información de contacto registrada
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Estadísticas del cliente -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2" style="color: var(--info-color);"></i>
+                        Estadísticas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="border-end">
+                                <h4 class="mb-1" style="color: var(--ead-blue);">{{ total_equipos }}</h4>
+                                <small class="text-muted">Equipos</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border-end">
+                                <h4 class="mb-1" style="color: var(--ead-red);">{{ total_trabajos }}</h4>
+                                <small class="text-muted">Trabajos</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="mb-1" style="color: var(--success-color);">${{ "%.2f"|format(total_gastado) }}</h4>
+                            <small class="text-muted">Gastado</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notas -->
+            {% if cliente.notes %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-journal-text me-2" style="color: var(--warning-color);"></i>
+                        Notas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ cliente.notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Equipos del cliente -->
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-truck me-2" style="color: var(--ead-blue);"></i>
+                        Equipos del Cliente ({{ total_equipos }})
+                    </h5>
+                    <a href="/equipo/nuevo" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        Nuevo Equipo
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if equipos %}
+                    <!-- Vista móvil: Cards -->
+                    <div class="d-block d-md-none">
+                        {% for equipo in equipos %}
+                        <div class="card border-0 border-bottom">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">
+                                            <a href="/equipo/{{ equipo.id }}" class="text-decoration-none">
+                                                {{ equipo.marca }} {{ equipo.modelo }} ({{ equipo.anio }})
+                                            </a>
+                                        </h6>
+                                        <p class="mb-1 small text-muted">
+                                            <i class="bi bi-hash me-1"></i>
+                                            {{ equipo.n_serie }}
+                                        </p>
+                                        {% if equipo.vehiculo %}
+                                        <p class="mb-1 small text-muted">
+                                            <i class="bi bi-truck me-1"></i>
+                                            {{ equipo.vehiculo }}
+                                            {% if equipo.dominio %} - {{ equipo.dominio }}{% endif %}
+                                        </p>
+                                        {% endif %}
+                                        <div class="mt-2">
+                                            <span class="badge bg-info">{{ equipo.trabajos_count }} trabajos</span>
+                                        </div>
+                                    </div>
+                                    <a href="/equipo/{{ equipo.id }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Vista desktop: Tabla -->
+                    <div class="d-none d-md-block table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Equipo</th>
+                                    <th>N° Serie</th>
+                                    <th>Vehículo</th>
+                                    <th>Trabajos</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for equipo in equipos %}
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>{{ equipo.marca }} {{ equipo.modelo }}</strong>
+                                            <br><small class="text-muted">Año {{ equipo.anio }}</small>
+                                        </div>
+                                    </td>
+                                    <td><code>{{ equipo.n_serie }}</code></td>
+                                    <td>
+                                        {% if equipo.vehiculo %}
+                                        {{ equipo.vehiculo }}
+                                        {% if equipo.dominio %}
+                                        <br><small class="text-muted">{{ equipo.dominio }}</small>
+                                        {% endif %}
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ equipo.trabajos_count }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="/equipo/{{ equipo.id }}" 
+                                           class="btn btn-sm btn-outline-primary"
+                                           title="Ver equipo">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-truck fs-1 text-muted mb-3"></i>
+                        <h5>No hay equipos registrados</h5>
+                        <p class="text-muted mb-4">Este cliente aún no tiene equipos asociados</p>
+                        <a href="/equipo/nuevo" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Agregar Primer Equipo
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar el cliente <strong>{{ cliente.nombre }}</strong>?</p>
+                {% if total_equipos > 0 %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Este cliente tiene <strong>{{ total_equipos }} equipo(s)</strong> asociado(s). 
+                    Los equipos quedarán sin cliente asignado.
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" action="/cliente/{{ cliente.id }}/eliminar" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>
+                        Eliminar Cliente
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete() {
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+</script>
+{% endblock %}
