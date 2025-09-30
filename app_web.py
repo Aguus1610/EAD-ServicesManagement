@@ -1730,8 +1730,15 @@ def api_info():
 
 # ---------------------------- INICIALIZACIÓN ----------------------------
 
-if __name__ == '__main__':
+# Inicializar base de datos al importar el módulo (para Gunicorn/Render)
+try:
     init_db()
+    logger.info("Base de datos inicializada correctamente al importar módulo")
+except Exception as e:
+    logger.error(f"Error crítico inicializando base de datos: {e}")
+    logger.error(traceback.format_exc())
+
+if __name__ == '__main__':
     # Para desarrollo local
     import os
     port = int(os.environ.get('PORT', 5000))
