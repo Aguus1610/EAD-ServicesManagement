@@ -103,41 +103,84 @@ class Job(BaseModel):
     notes = TextField(null=True)
 
 def init_db():
-    """Inicializar base de datos"""
-    db.connect()
-    
-    # Verificar si necesitamos migrar la base de datos
-    needs_migration = False
-    
+    """Inicializar base de datos con manejo robusto de errores"""
     try:
-        # Intentar crear las tablas
-        db.create_tables([Client, Equipment, Job], safe=True)
+        # Verificar si la base de datos existe y es accesible
+        if not db.is_closed():
+            db.close()
         
-        # Verificar si la columna client_id existe en Equipment
-        cursor = db.execute_sql("PRAGMA table_info(equipment)")
-        columns = [column[1] for column in cursor.fetchall()]
+        # Conectar a la base de datos
+        db.connect()
+        logger.info("Conexión a base de datos establecida")
         
-        if 'client_id' not in columns:
-            needs_migration = True
-            logger.info("Detectada necesidad de migración - agregando columna client_id")
+        # Verificar si necesitamos migrar la base de datos
+        needs_migration = False
+        
+        try:
+            # Intentar crear las tablas
+            db.create_tables([Client, Equipment, Job], safe=True)
+            logger.info("Tablas de base de datos verificadas/creadas")
             
-            # Agregar la columna client_id
-            db.execute_sql("ALTER TABLE equipment ADD COLUMN client_id INTEGER")
+            # Verificar si la columna client_id existe en Equipment
+            cursor = db.execute_sql("PRAGMA table_info(equipment)")
+            columns = [column[1] for column in cursor.fetchall()]
             
-            # Ahora migrar los datos
-            migrate_propietarios_to_clients()
-        else:
-            # La columna ya existe, verificar si hay datos para migrar
-            migrate_propietarios_to_clients()
-        
+            if 'client_id' not in columns:
+                needs_migration = True
+                logger.info("Detectada necesidad de migración - agregando columna client_id")
+                
+                # Agregar la columna client_id
+                db.execute_sql("ALTER TABLE equipment ADD COLUMN client_id INTEGER")
+                logger.info("Columna client_id agregada exitosamente")
+                
+                # Ahora migrar los datos
+                migrate_propietarios_to_clients()
+            else:
+                # La columna ya existe, verificar si hay datos para migrar
+                migrate_propietarios_to_clients()
+            
+            logger.info("Inicialización de base de datos completada exitosamente")
+            
+        except Exception as e:
+            logger.error(f"Error en inicialización de tablas: {e}")
+            logger.error(traceback.format_exc())
+            # Si hay error, intentar crear tablas desde cero
+            try:
+                logger.info("Intentando recrear base de datos desde cero...")
+                db.drop_tables([Job, Equipment, Client], safe=True)
+                db.create_tables([Client, Equipment, Job])
+                logger.info("Base de datos recreada exitosamente")
+            except Exception as e2:
+                logger.error(f"Error crítico en recreación de base de datos: {e2}")
+                logger.error(traceback.format_exc())
+                raise e2
+                
     except Exception as e:
-        logger.error(f"Error en inicialización de base de datos: {e}")
-        # Si hay error, intentar crear tablas desde cero
-        db.create_tables([Client, Equipment, Job])
+        logger.error(f"Error crítico en conexión a base de datos: {e}")
+        logger.error(traceback.format_exc())
+        # En lugar de fallar completamente, crear una base de datos temporal en memoria
+        try:
+            logger.warning("Intentando crear base de datos temporal en memoria...")
+            # Recrear la base de datos en memoria
+            import tempfile
+            temp_db_path = os.path.join(tempfile.gettempdir(), 'agenda_taller_temp.db')
+            db.init(temp_db_path)
+            db.connect()
+            db.create_tables([Client, Equipment, Job])
+            logger.info("Base de datos temporal creada exitosamente")
+        except Exception as e3:
+            logger.error(f"Error crítico final: {e3}")
+            logger.error(traceback.format_exc())
+            raise e3
 
 def migrate_propietarios_to_clients():
     """Migra propietarios existentes a la tabla de clientes"""
     try:
+        # Verificar que las tablas existan antes de migrar
+        if not db.table_exists('equipment') or not db.table_exists('client'):
+            logger.info("Tablas no existen aún, saltando migración")
+            return
+            
         # Usar SQL directo para obtener propietarios únicos
         cursor = db.execute_sql("""
             SELECT DISTINCT propietario 
@@ -174,6 +217,8 @@ def migrate_propietarios_to_clients():
         
     except Exception as e:
         logger.error(f"Error en migración de propietarios: {e}")
+        logger.error(traceback.format_exc())
+        # No es crítico, continuar sin migrar
 
 # ---------------------------- FUNCIONES DE IMPORTACIÓN EXCEL ----------------------------
 
